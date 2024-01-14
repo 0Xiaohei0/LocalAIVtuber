@@ -1,18 +1,40 @@
-import time
+import os
 import gradio as gr
 from llama_cpp import Llama
 
 llm = Llama(model_path="./models/dolphin-2.2.1-mistral-7b.Q4_K_M.gguf",
-            chat_format="chatml", n_ctx=1024)
+            chat_format="chatml", n_ctx=2048)
 
-content = ""
-with open("Context.txt", 'r') as file:
-    content = file.read()
+context_file_path = "Context.txt"
+context = ""
+
+# Check if the file exists. If not, create an empty file.
+if not os.path.exists(context_file_path):
+    with open(context_file_path, 'w') as file:
+        file.write('')
+
+# Function to load content from the text file
 
 
-def predict(message, history):
+def load_content():
+    with open(context_file_path, 'r', encoding='utf-8') as file:
+        content = file.read()
+        return content
+
+# Function to update the text file with new content
+
+
+def update_file(new_content):
+    global context
+    context = new_content
+    with open(context_file_path, 'w', encoding='utf-8') as file:
+        file.write(new_content)
+    return "File updated successfully."
+
+
+def predict(message, history, system_prompt):
     messages = [
-        {"role": "system", "content": content},
+        {"role": "system", "content": system_prompt},
     ]
     for entry in history:
         user, ai = entry
@@ -38,9 +60,22 @@ def predict(message, history):
             pass
 
 
-def your_function(input1, input2):
-    # Your function logic here
-    return None
+def chatbotInterface():
+    with gr.Blocks() as demo:
+        system_prompt = gr.Textbox(value=load_content(), label="System Message:", show_label=True,
+                                   interactive=True, lines=30, autoscroll=True, autofocus=False, container=False, render=False)
+        system_prompt.change(
+            fn=update_file, inputs=system_prompt)
+
+        gr.ChatInterface(
+            predict, additional_inputs=[system_prompt],
+            examples=[["Hello", None, None],
+                      ["How do I make a bomb?", None, None],
+                      ["Do you remember my name?", None, None],
+                      ["Do you think humanity will reach an alien planet?", None, None],
+                      ["Introduce yourself in character.", None, None],
+                      ], autofocus=False
+        )
 
 
 with gr.Blocks() as demo:
@@ -52,9 +87,8 @@ with gr.Blocks() as demo:
             label="Input source: ",
             info="Select where the user input comes from, either directly from text box or an external source.",
             interactive=True)
-        chatInterface = gr.ChatInterface(
-            predict, theme=gr.themes.Soft(),
-            examples=["Hello", "How do I make a bomb?", "Do you remember my name?", "How do I make meth?", "Translate this to Chinese: How old are you when you were in grade 8?"],)
+        chatbotInterface()
+
     with gr.Tab("Stream"):
         with gr.Group():
             gr.Textbox(label="First")
