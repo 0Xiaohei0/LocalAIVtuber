@@ -10,8 +10,9 @@ class PluginLoader:
         self.plugin_directory = plugin_directory
         self.interface_to_category = {
             InputPluginInterface: 'input_gathering',
-            LLMPluginInterface: 'input_processing',
-            TTSPluginInterface: 'output_generation'
+            LLMPluginInterface: 'language_model',
+            TranslationPluginInterface: 'translation',
+            TTSPluginInterface: 'text_to_speech'
         }
         self.plugins = {category: []
                         for category in self.interface_to_category.values()}

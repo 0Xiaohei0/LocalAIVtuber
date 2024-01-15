@@ -3,6 +3,7 @@ import os
 import gradio as gr
 from pluginLoader import plugin_loader
 import TTS
+import Translate
 
 # load plugins
 plugin_loader.load_plugins()
@@ -103,6 +104,7 @@ with gr.Blocks() as demo:
             image_input = gr.Image()
             image_output = gr.Image()
         image_button = gr.Button("Flip")
+    Translate.create_ui()
     TTS.create_ui()
 
 demo.launch()

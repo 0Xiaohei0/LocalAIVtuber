@@ -1,25 +1,20 @@
 from pluginLoader import plugin_loader
 from pluginInterface import TTSPluginInterface
 import gradio as gr
+import utils
 
 selected_provider = None
 
 
 def create_ui():
     category_name = plugin_loader.interface_to_category[TTSPluginInterface]
-
-    TTSProviderList = []  # Plugin names for display in UI
-    TTSProviderMap = {}  # Map plugin names to instances
-    for tts_provider in plugin_loader.plugins[category_name]:
-        provider_name = tts_provider.__class__.__name__
-        TTSProviderList.append(provider_name)
-        TTSProviderMap[provider_name] = tts_provider
-
+    TTSProviderList, TTSProviderMap = utils.pluginToNameMap(
+        plugin_loader.plugins[category_name])
     default_provider_name = TTSProviderList[0] if TTSProviderList else None
     global selected_provider
     selected_provider = TTSProviderMap[default_provider_name]
     with gr.Tab("TTS"):
-        Input_selection = gr.Dropdown(
+        gr.Dropdown(
             choices=TTSProviderList,
             value=default_provider_name,
             type="value",

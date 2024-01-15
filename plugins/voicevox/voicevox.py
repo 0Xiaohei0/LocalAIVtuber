@@ -17,13 +17,9 @@ class VoiceVox(TTSPluginInterface):
         if (self.voicevox_server_started):
             return
         # start voicevox server
-        # Get the directory of the current module
         current_module_directory = os.path.dirname(__file__)
-
-        # Construct the relative path to the executable
         executable_path = os.path.join(
             current_module_directory, "VoicevoxEngine", "run.exe")
-
         # Run the executable
         subprocess.Popen(executable_path)
         self.voicevox_server_started = True
