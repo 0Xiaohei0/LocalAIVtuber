@@ -1,25 +1,85 @@
 import subprocess
+import time
+import gradio as gr
+import requests
 from pluginInterface import TTSPluginInterface
 import os
 
 
 class VoiceVox(TTSPluginInterface):
     voicevox_server_started = False
+    current_module_directory = os.path.dirname(__file__)
+    executable_path = os.path.join(
+        current_module_directory, "VoicevoxEngine", "run.exe")
+    VOICE_OUTPUT_FILENAME = os.path.join(
+        current_module_directory, "synthesized_voice.wav")
+    VOICE_VOX_URL_LOCAL = "127.0.0.1"
 
     def init(self):
         print("initializing voicevox...")
         self.start_voicevox_server()
 
+        self.initialize_speakers()
+        self.speaker_names = self.get_speaker_names()
+        self.default_speaker = self.speaker_names[0]
+        self.current_speaker = self.default_speaker
+
+        self.current_styles = self.get_speaker_styles(self.current_speaker)
+        self.selected_style = self.current_styles[0]
+        self.speaker_id = self.selected_style['id']
+
     def synthesize(self, text):
-        raise NotImplementedError
+        VoiceTextResponse = requests.request(
+            "POST", f"http://{self.VOICE_VOX_URL_LOCAL}:50021/audio_query?text={text}&speaker={self.speaker_id}")
+        AudioResponse = requests.request(
+            "POST", f"http://{self.VOICE_VOX_URL_LOCAL}:50021/synthesis?speaker={self.speaker_id}", data=VoiceTextResponse)
+
+        with open(self.VOICE_OUTPUT_FILENAME, "wb") as file:
+            file.write(AudioResponse.content)
+        return AudioResponse.content
+
+    def create_ui(self):
+        gr.Dropdown(
+            choices=self.speaker_names,
+            value=self.current_speaker,
+            type="value",
+            label="Translation provider: ",
+            info="Select the translation provider",
+            interactive=True)
+        gr.Dropdown(
+            choices=self.current_styles,
+            value=self.selected_style,
+            type="value",
+            label="Translation provider: ",
+            info="Select the translation provider",
+            interactive=True)
 
     def start_voicevox_server(self):
         if (self.voicevox_server_started):
             return
         # start voicevox server
-        current_module_directory = os.path.dirname(__file__)
-        executable_path = os.path.join(
-            current_module_directory, "VoicevoxEngine", "run.exe")
-        # Run the executable
-        subprocess.Popen(executable_path)
+        subprocess.Popen(self.executable_path)
         self.voicevox_server_started = True
+
+    def initialize_speakers(self):
+        url = f"http://{self.VOICE_VOX_URL_LOCAL}:50021/speakers"
+        while True:
+            try:
+                response = requests.request("GET", url)
+                break
+            except:
+                print("Waiting for voicevox to start... ")
+                time.sleep(0.5)
+        self.speakersResponse = response.json()
+
+    def get_speaker_names(self):
+        speakerNames = list(
+            map(lambda speaker: speaker['name'],  self.speakersResponse))
+        return speakerNames
+
+    def get_speaker_styles(self, speaker_name):
+        speaker_styles = next(
+            speaker['styles'] for speaker in self.speakersResponse if speaker['name'] == speaker_name)
+
+        print(speaker_styles)
+        return speaker_styles

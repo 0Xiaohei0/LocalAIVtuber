@@ -14,6 +14,7 @@ def create_ui():
     global selected_provider
     selected_provider = ProviderMap[default_provider_name]
     with gr.Tab("Translate"):
+        # translation provider selection
         gr.Dropdown(
             choices=ProviderList,
             value=default_provider_name,
@@ -21,11 +22,20 @@ def create_ui():
             label="Translation provider: ",
             info="Select the translation provider",
             interactive=True)
+        # translation UI
+        gr.Interface(
+            fn=selected_provider.translate,
+            inputs=[gr.Textbox(label="Original Text", lines=3)],
+            outputs=[gr.Textbox(label="Translated Text", lines=3)],
+            allow_flagging="never",
+            examples=["My name is Wolfgang and I live in Berlin",
+                      "VHave you ever kept goldfish as pets? They're very cute."]
+        )
     load_provider()
 
 
 def load_provider():
     global selected_provider
     if issubclass(type(selected_provider), TranslationPluginInterface):
+        print("Loading Translation Module...")
         selected_provider.init()
-        print(selected_provider.translate("This is a test message."))
