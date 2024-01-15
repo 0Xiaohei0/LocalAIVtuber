@@ -5,6 +5,9 @@ class InputPluginInterface:
     def gather_input(self):
         raise NotImplementedError
 
+    def create_ui(self):
+        pass
+
 
 class LLMPluginInterface:
     def init(self):
@@ -12,6 +15,9 @@ class LLMPluginInterface:
 
     def predict(self, message, history):
         raise NotImplementedError
+
+    def create_ui(self):
+        pass
 
 
 class TranslationPluginInterface:
@@ -28,6 +34,9 @@ class TranslationPluginInterface:
     def get_output_language_code(self):
         raise NotImplementedError
 
+    def create_ui(self):
+        pass
+
 
 class TTSPluginInterface:
     def init(self):
@@ -35,3 +44,6 @@ class TTSPluginInterface:
 
     def synthesize(self, text):
         raise NotImplementedError
+
+    def create_ui(self):
+        pass

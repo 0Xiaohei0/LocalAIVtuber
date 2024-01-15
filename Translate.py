@@ -13,6 +13,7 @@ def create_ui():
     default_provider_name = ProviderList[0] if ProviderList else None
     global selected_provider
     selected_provider = ProviderMap[default_provider_name]
+    load_provider()
     with gr.Tab("Translate"):
         # translation provider selection
         gr.Dropdown(
@@ -31,7 +32,6 @@ def create_ui():
             examples=["My name is Wolfgang and I live in Berlin",
                       "VHave you ever kept goldfish as pets? They're very cute."]
         )
-    load_provider()
 
 
 def load_provider():

@@ -13,6 +13,7 @@ def create_ui():
     default_provider_name = TTSProviderList[0] if TTSProviderList else None
     global selected_provider
     selected_provider = TTSProviderMap[default_provider_name]
+    load_provider()
     with gr.Tab("TTS"):
         gr.Dropdown(
             choices=TTSProviderList,
@@ -30,7 +31,7 @@ def create_ui():
                       "金魚飼ったことある？大人しゅうて、めっちゃ可愛ええんや。",
                       "全身ポカポカで気持ちええわぁ～、浮いとるみたい。"]
         )
-    load_provider()
+        selected_provider.create_ui()
 
 
 def load_provider():
