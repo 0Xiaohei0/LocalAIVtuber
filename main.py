@@ -1,6 +1,10 @@
+from llama_cpp import Llama
 import os
 import gradio as gr
-from llama_cpp import Llama
+from pluginLoader import plugin_loader
+
+# load plugins
+plugin_loader.load_plugins()
 
 llm = Llama(model_path="./models/dolphin-2.2.1-mistral-7b.Q4_K_M.gguf",
             chat_format="chatml", n_ctx=2048)
