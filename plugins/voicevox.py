@@ -2,7 +2,7 @@ import subprocess
 from pluginInterface import TTSPluginInterface
 
 
-class VoiceVoxPlugin(TTSPluginInterface):
+class VoiceVox(TTSPluginInterface):
     voicevox_server_started = False
 
     def init(self):

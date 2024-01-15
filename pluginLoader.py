@@ -4,8 +4,6 @@ from pluginInterface import *
 
 plugin_directory = "plugins"
 
-plugin_type_dict
-
 
 class PluginLoader:
     def __init__(self, plugin_directory):
@@ -27,6 +25,9 @@ class PluginLoader:
                 for attribute_name in dir(module):
                     attribute = getattr(module, attribute_name)
                     if isinstance(attribute, type):
+                        # Exclude based on naming convention
+                        if attribute_name.endswith('Interface'):
+                            continue
                         for interface, category in self.interface_to_category.items():
                             if issubclass(attribute, interface):
                                 self.plugins[category].append(attribute())
