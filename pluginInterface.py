@@ -1,6 +1,6 @@
 class InputPluginInterface:
     def init(self):
-        raise NotImplementedError
+        pass
 
     def gather_input(self):
         raise NotImplementedError
@@ -8,7 +8,7 @@ class InputPluginInterface:
 
 class LLMPluginInterface:
     def init(self):
-        raise NotImplementedError
+        pass
 
     def predict(self, message, history):
         raise NotImplementedError
@@ -16,7 +16,7 @@ class LLMPluginInterface:
 
 class TTSPluginInterface:
     def init(self):
-        raise NotImplementedError
+        pass
 
     def synthesize(self, text):
         raise NotImplementedError

@@ -105,4 +105,4 @@ with gr.Blocks() as demo:
         image_button = gr.Button("Flip")
     TTS.create_ui()
 
-demo.queue().launch()
+demo.launch()
