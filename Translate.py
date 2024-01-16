@@ -6,6 +6,7 @@ import utils
 
 selected_provider = None
 input_queue = Queue()
+output_event_listeners = []
 
 
 def create_ui():
@@ -55,4 +56,15 @@ def receive_input(text):
 
 def run_until_queue_empty(function):
     while (not input_queue.empty()):
-        print(function(input_queue.get()))
+        send_output(function(input_queue.get()))
+
+
+def send_output(output):
+    print(output)
+    for subcriber in output_event_listeners:
+        subcriber(output)
+
+
+def add_output_event_listener(function):
+    global output_event_listeners
+    output_event_listeners.append(function)

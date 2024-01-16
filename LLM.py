@@ -82,15 +82,11 @@ def load_provider():
         print("Loading LLM Module...")
         selected_provider.init()
 
-# Function to load content from the text file
-
 
 def load_content():
     with open(context_file_path, 'r', encoding='utf-8') as file:
         content = file.read()
         return content
-
-# Function to update the text file with new content
 
 
 def update_file(new_content):

@@ -14,5 +14,6 @@ with gr.Blocks() as demo:
     TTS.create_ui()
 
     LLM.add_output_event_listener(Translate.receive_input)
+    Translate.add_output_event_listener(TTS.receive_input)
 
 demo.launch()
