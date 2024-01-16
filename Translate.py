@@ -40,7 +40,7 @@ def create_ui():
             outputs=[translated_text_textbox],
             allow_flagging="never",
             examples=["My name is Wolfgang and I live in Berlin",
-                      "VHave you ever kept goldfish as pets? They're very cute."]
+                      "Have you ever kept goldfish as pets? They're very cute."]
         )
 
 
