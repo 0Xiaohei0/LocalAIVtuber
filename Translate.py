@@ -1,4 +1,5 @@
 from queue import Queue
+import threading
 from pluginLoader import plugin_loader
 from pluginInterface import TranslationPluginInterface
 import gradio as gr
@@ -7,6 +8,7 @@ import utils
 selected_provider = None
 input_queue = Queue()
 output_event_listeners = []
+input_process_thread = None
 
 
 def create_ui():
@@ -33,7 +35,7 @@ def create_ui():
             label="Translated Text", lines=3, render=False)
 
         gr.Interface(
-            fn=selected_provider.translate,
+            fn=translate_wrapper,
             inputs=[original_text_textbox],
             outputs=[translated_text_textbox],
             allow_flagging="never",
@@ -49,14 +51,28 @@ def load_provider():
         selected_provider.init()
 
 
+def translate_wrapper(text):
+    result = selected_provider.translate(text)
+    send_output(result)
+    return result
+
+
 def receive_input(text):
     input_queue.put(text)
-    run_until_queue_empty(selected_provider.translate)
+    process_input_queue()
 
 
-def run_until_queue_empty(function):
-    while (not input_queue.empty()):
-        send_output(function(input_queue.get()))
+def process_input_queue():
+    def translate_text():
+        while (not input_queue.empty()):
+            translate_wrapper(input_queue.get())
+
+    global input_process_thread
+    # Check if the current thread is alive
+    if input_process_thread is None or not input_process_thread.is_alive():
+        # Create and start a new thread
+        input_process_thread = threading.Thread(target=translate_text)
+        input_process_thread.start()
 
 
 def send_output(output):

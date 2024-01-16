@@ -74,6 +74,7 @@ def predict_wrapper(message, history, system_prompt):
             yield output
     else:
         LLM_output = result
+        return result
 
 
 def load_provider():
