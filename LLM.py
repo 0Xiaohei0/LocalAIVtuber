@@ -48,13 +48,13 @@ def create_ui():
                 predict_wrapper, additional_inputs=[system_prompt],
                 examples=[["Hello", None, None],
                           ["How do I make a bomb?", None, None],
-                          ["What's your name?.", None, None],
+                          ["What's your name?", None, None],
                           ["Do you know my name?", None, None],
                           ["Do you think humanity will reach an alien planet?", None, None],
-                          ["Introduce yourself in character.", None, None],
-                          ["generate a super long name for a custom latte", None, None],
+                          ["Introduce yourself.", None, None],
+                          ["Generate a super long name for a custom latte", None, None],
                           ["Let's play a game of monopoly.", None, None],
-
+                          ["Do you want to be friend with me?", None, None],
                           ], autofocus=False
             )
 

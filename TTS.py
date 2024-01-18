@@ -52,13 +52,7 @@ def load_provider():
 VOICE_OUTPUT_FILENAME = "synthesized_voice.wav"
 
 
-def preprocess_input(text):
-    text = text.replace(" ", "")
-    return text
-
-
 def receive_input(text):
-    text = preprocess_input(text)
     input_queue.put(text)
     process_input_queue(selected_provider.synthesize)
 

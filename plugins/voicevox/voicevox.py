@@ -32,7 +32,7 @@ class VoiceVox(TTSPluginInterface):
 
     def create_ui(self):
         self.speaker_names = self.get_speaker_names()
-        self.current_speaker = self.speaker_names[0]
+        self.current_speaker = self.speaker_names[18]
 
         self.current_styles = self.get_speaker_styles(self.current_speaker)
         self.selected_style = self.current_styles[0]
