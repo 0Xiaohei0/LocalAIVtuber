@@ -1,3 +1,5 @@
+import requests
+from tqdm import tqdm
 from pluginInterface import LLMPluginInterface
 import gradio as gr
 from llama_cpp import Llama
@@ -8,12 +10,50 @@ class LocalLLM(LLMPluginInterface):
     context_length = 4096
 
     def init(self):
+        # Directory where the module is located
         current_module_directory = os.path.dirname(__file__)
-        model_path = os.path.join(
-            current_module_directory, "models", "mistral-7b-instruct-v0.1.Q4_K_M.gguf")
+        model_filename = "dolphin-2.2.1-mistral-7b.Q4_K_M.gguf"
+        model_directory = os.path.join(current_module_directory, "models")
+        model_path = os.path.join(model_directory, model_filename)
+
+        # Check if the model file exists
+        if not os.path.exists(model_path):
+            # If not, create the models directory if it does not exist
+            if not os.path.exists(model_directory):
+                os.makedirs(model_directory)
+
+            # URL to download the model
+            url = "https://huggingface.co/TheBloke/dolphin-2.2.1-mistral-7B-GGUF/resolve/main/dolphin-2.2.1-mistral-7b.Q4_K_M.gguf?download=true"
+            
+             # Download the file with progress
+            print(f"Downloading model from {url}...")
+            response = requests.get(url, stream=True)
+            
+            if response.status_code == 200:
+                total_size_in_bytes = int(response.headers.get('content-length', 0))
+                block_size = 1024  # 1 Kibibyte
+
+                progress_bar = tqdm(total=total_size_in_bytes, unit='iB', unit_scale=True)
+                with open(model_path, 'wb') as file:
+                    for data in response.iter_content(block_size):
+                        progress_bar.update(len(data))
+                        file.write(data)
+                progress_bar.close()
+
+                if total_size_in_bytes != 0 and progress_bar.n != total_size_in_bytes:
+                    print("ERROR, something went wrong during download")
+                else:
+                    print("Model downloaded successfully.")
+            else:
+                print(f"Failed to download the model. Status code: {response.status_code}")
+                return
+
+        # Initialize the model
         self.llm = Llama(model_path=model_path,
                          chat_format="chatml", n_ctx=self.context_length)
 
+
+# https://huggingface.co/TheBloke/dolphin-2.2.1-mistral-7B-GGUF/blob/main/dolphin-2.2.1-mistral-7b.Q4_K_M.gguf
     def predict(self, message, history, system_prompt):
         messages = [
             {"role": "system", "content": system_prompt},

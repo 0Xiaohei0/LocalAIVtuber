@@ -1,7 +1,9 @@
 import subprocess
 import time
+import zipfile
 import gradio as gr
 import requests
+from tqdm import tqdm
 from pluginInterface import TTSPluginInterface
 import os
 
@@ -9,13 +11,58 @@ import os
 class VoiceVox(TTSPluginInterface):
     voicevox_server_started = False
     current_module_directory = os.path.dirname(__file__)
-    executable_path = os.path.join(
-        current_module_directory, "VoicevoxEngine", "run.exe")
+    voicevox_engine_directory = os.path.join(current_module_directory, "VoicevoxEngine", "VOICEVOX")
+    executable_path = os.path.join(voicevox_engine_directory, "run.exe")
     VOICE_OUTPUT_FILENAME = os.path.join(
         current_module_directory, "synthesized_voice.wav")
     VOICE_VOX_URL_LOCAL = "127.0.0.1"
 
     def init(self):
+        # Define the directory and file name
+        file_name = "voicevox-windows-directml-0.14.11.zip"
+        file_path = os.path.join(self.current_module_directory, file_name)
+
+        # Check if the VoicevoxEngine folder exists
+        if not os.path.exists(self.voicevox_engine_directory):
+            # Define the file name and path for the ZIP file
+            file_name = "voicevox-windows-directml-0.14.11.zip"
+            file_path = os.path.join(self.current_module_directory, file_name)
+
+            # URL to download the ZIP file
+            url = "https://github.com/VOICEVOX/voicevox/releases/download/0.14.11/voicevox-windows-directml-0.14.11.zip"
+            
+            # Download the ZIP file with progress
+            print(f"Downloading {file_name} from {url}...")
+            response = requests.get(url, stream=True)
+
+            if response.status_code == 200:
+                total_size_in_bytes = int(response.headers.get('content-length', 0))
+                block_size = 1024  # 1 Kibibyte
+
+                progress_bar = tqdm(total=total_size_in_bytes, unit='iB', unit_scale=True)
+                with open(file_path, 'wb') as file:
+                    for data in response.iter_content(block_size):
+                        progress_bar.update(len(data))
+                        file.write(data)
+                progress_bar.close()
+
+                if total_size_in_bytes != 0 and progress_bar.n != total_size_in_bytes:
+                    print("ERROR, something went wrong during download")
+                else:
+                    print(f"{file_name} downloaded successfully.")
+
+                # Extract and rename the ZIP file contents
+                print(f"Extracting {file_name}...")
+                with zipfile.ZipFile(file_path, 'r') as zip_ref:
+                    zip_ref.extractall(self.voicevox_engine_directory)
+                print(f"{file_name} extracted to VoicevoxEngine successfully.")
+
+                # Optionally, delete the ZIP file after extraction
+                os.remove(file_path)
+            else:
+                print(f"Failed to download {file_name}. Status code: {response.status_code}")
+                return
+            
         print("initializing voicevox...")
         self.start_voicevox_server()
         self.initialize_speakers()

@@ -1,0 +1,11 @@
+__pycache__
+.*
+!.gitignore
+flagged
+venv
+gradio_cached_examples
+gradio-env
+models
+Context*.txt
+plugins/voicevox/VoicevoxEngine
+*.wav
