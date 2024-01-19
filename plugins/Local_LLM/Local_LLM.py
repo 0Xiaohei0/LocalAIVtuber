@@ -10,7 +10,7 @@ class LocalLLM(LLMPluginInterface):
     def init(self):
         current_module_directory = os.path.dirname(__file__)
         model_path = os.path.join(
-            current_module_directory, "models", "mistral-7b-instruct-v0.1.Q4_K_M.gguf")
+            current_module_directory, "models", "dolphin-2.2.1-mistral-7b.Q4_K_M.gguf")
         self.llm = Llama(model_path=model_path,
                          chat_format="chatml", n_ctx=self.context_length)
 
