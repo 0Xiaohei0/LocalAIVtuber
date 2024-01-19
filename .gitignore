@@ -8,4 +8,5 @@ gradio-env
 models
 Context*.txt
 plugins/voicevox/VoicevoxEngine
+plugins/Local_EN_to_JA/models--staka--fugumt-en-ja
 *.wav
