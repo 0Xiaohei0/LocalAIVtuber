@@ -5,7 +5,7 @@ import gradio as gr
 import requests
 from pluginInterface import TTSPluginInterface
 
-# speaker bookmarks: en_18, en_21, en_37, en_39
+# speaker bookmarks: en_18, en_21, en_37, en_39, en_43, en_72
 
 
 class Silero(TTSPluginInterface):
@@ -53,7 +53,7 @@ class Silero(TTSPluginInterface):
                 )
                 self.speaker_dropdown = gr.Dropdown(
                     choices=speaker_names,
-                    value=speaker_names[0],
+                    value="en_18",
                     label="Speaker: "
                 )
 
@@ -110,7 +110,8 @@ class Silero(TTSPluginInterface):
         self.current_language = choice
         print(f"Changed language to: {choice}")
         speaker_names = self.get_speaker_names()
-        return gr.update(choices=speaker_names, value=speaker_names[0])
+        self.current_speaker = speaker_names[0]
+        return gr.update(choices=speaker_names, value=self.current_speaker)
 
     def on_speaker_change(self, choice):
         self.current_speaker = choice
