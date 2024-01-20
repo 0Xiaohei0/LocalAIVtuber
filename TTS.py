@@ -27,8 +27,13 @@ class TTS(PluginSelectionBase):
                 allow_flagging="never",
                 examples=["すぅ…はぁ——おはようさん、朝の空気は清々しくて気持ちええなぁ、深呼吸して頭もすっきりや。",
                           "金魚飼ったことある？大人しゅうて、めっちゃ可愛ええんや。",
-                          "全身ポカポカで気持ちええわぁ～、浮いとるみたい。"]
+                          "全身ポカポカで気持ちええわぁ～、浮いとるみたい。",
+                          "Ah... *yawns* Good morning. The morning air is the freshest. Come on, take a few extra breaths — it'll make you smarter~",
+                          "Have you ever kept goldfish as pets? They're very cute.",
+                          "Ah, this is great! I feel so relaxed all over, I could almost float away."]
             )
+            gr.Markdown(
+                "Note: Some prividers may only support certain languages.")
             super().create_plugin_ui()
 
     def wrapper_synthesize(self, text):
