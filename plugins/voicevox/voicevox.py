@@ -88,7 +88,7 @@ class VoiceVox(TTSPluginInterface):
         self.current_styles = self.get_speaker_styles(self.current_speaker)
         self.selected_style = self.current_styles[0]
 
-        with gr.Accordion(label="Plugin Options"):
+        with gr.Accordion(label="Voicevox Options"):
             with gr.Row():
                 self.speaker_dropdown = gr.Dropdown(
                     choices=self.speaker_names,
