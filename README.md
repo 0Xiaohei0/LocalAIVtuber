@@ -16,6 +16,12 @@
 ## Installation
 1. Download the project as zip
 2. Extract and double click run.bat
+3. When you see this message, go to http://localhost:7860 to see web UI 
+```
+Running on local URL:  http://127.0.0.1:7860
+
+To create a public link, set `share=True` in `launch()`.
+```
 
 
 ## TODO (This project is still under development and more features are planned)
