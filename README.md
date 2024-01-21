@@ -1,6 +1,6 @@
 # Local AI Vtuber (A tool for hosting AI vtubers that runs fully locally and offline)
 
-- Chatbot, Translation and Text-to-Speech, all compeletely free and running locally.
+- Chatbot, Translation and Text-to-Speech, all completely free and running locally.
 - support voice output in Japanese, English, German, Spanish, French, Russian and more, powered by silero and voicevox.
 - Gradio UI web interface.
 - plugin support for easily adding other providers.
@@ -18,7 +18,7 @@
 2. Extract and double click run.bat
 
 
-## TODO (This project is still under developement and more features are planned)
+## TODO (This project is still under development and more features are planned)
 - Fetch chat input from streaming platforms
 - Improve local LLM
 - Write plugins for cloud providers(Azure tts, elevenlabs, chatgpt, whisper...)
