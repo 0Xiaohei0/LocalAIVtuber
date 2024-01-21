@@ -44,7 +44,7 @@ class Silero(TTSPluginInterface):
         language_names = self.get_langauges()
         speaker_names = self.get_speaker_names()
         self.current_speaker = speaker_names[0]
-        with gr.Accordion(label="Silero Options"):
+        with gr.Accordion(label="Silero Options", open=False):
             with gr.Row():
                 self.language_dropdown = gr.Dropdown(
                     choices=language_names,

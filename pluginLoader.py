@@ -9,7 +9,7 @@ class PluginLoader:
     def __init__(self, plugin_directory):
         self.plugin_directory = plugin_directory
         self.interface_to_category = {
-            LLMPluginInterface: 'input_gathering',
+            InputPluginInterface: 'input_gathering',
             LLMPluginInterface: 'language_model',
             TranslationPluginInterface: 'translation',
             TTSPluginInterface: 'text_to_speech'

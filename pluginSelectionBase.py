@@ -8,21 +8,31 @@ class Provider():
     ui = None
 
 
-class PluginSelectionBase():
-    provider_list = []
-    current_plugin = None
+# place holder until config saving is implemented
+temp_default = ["LocalENToJA", "VoiceVox"]
 
+
+class PluginSelectionBase():
     def __init__(self, plugin_type) -> None:
         # load plugin
+        self.provider_list = []
         self.plugin_type = plugin_type
         self.category_name = plugin_loader.interface_to_category[self.plugin_type]
+        print(f"self.category_name: {self.category_name}")
         for plugin in plugin_loader.plugins[self.category_name]:
             provider = Provider()
             provider.plugin = plugin
             provider.name = plugin.__class__.__name__
             self.provider_list.append(provider)
+
         self.default_provider = self.provider_list[0]  # todo load from save
+        for provider in self.provider_list:
+            if provider.name in temp_default:
+                # todo load from save
+                self.default_provider = provider
+
         self.current_plugin = self.default_provider.plugin
+
         for provider in self.provider_list:
             self.load_provider(provider.name)
 

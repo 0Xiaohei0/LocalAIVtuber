@@ -52,12 +52,11 @@ class TTS(PluginSelectionBase):
                 self.audio_data_queue.put(function(self.input_queue.get()))
                 self.process_audio_queue(self.play_sound_from_bytes)
 
-        global audio_process_thread
         # Check if the current thread is alive
-        if audio_process_thread is None or not audio_process_thread.is_alive():
+        if self.audio_process_thread is None or not self.audio_process_thread.is_alive():
             # Create and start a new thread
-            audio_process_thread = threading.Thread(target=generate_audio)
-            audio_process_thread.start()
+            self.audio_process_thread = threading.Thread(target=generate_audio)
+            self.audio_process_thread.start()
 
     def process_audio_queue(self, function):
         def play_audio():
@@ -65,12 +64,11 @@ class TTS(PluginSelectionBase):
                 # generate audio data and queue up for playing
                 function(self.audio_data_queue.get())
 
-        global audio_playback_thread
         # Check if the current thread is alive
-        if audio_playback_thread is None or not audio_playback_thread.is_alive():
+        if self.audio_playback_thread is None or not self.audio_playback_thread.is_alive():
             # Create and start a new thread
-            audio_playback_thread = threading.Thread(target=play_audio)
-            audio_playback_thread.start()
+            self.audio_playback_thread = threading.Thread(target=play_audio)
+            self.audio_playback_thread.start()
 
     def play_sound_from_bytes(self, audio_data):
         with open(self.VOICE_OUTPUT_FILENAME, "wb") as file:
