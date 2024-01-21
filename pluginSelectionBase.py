@@ -18,7 +18,6 @@ class PluginSelectionBase():
         self.provider_list = []
         self.plugin_type = plugin_type
         self.category_name = plugin_loader.interface_to_category[self.plugin_type]
-        print(f"self.category_name: {self.category_name}")
         for plugin in plugin_loader.plugins[self.category_name]:
             provider = Provider()
             provider.plugin = plugin

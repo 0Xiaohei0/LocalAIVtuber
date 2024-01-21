@@ -1,123 +1,86 @@
 import inspect
-from pluginLoader import plugin_loader
 from pluginInterface import LLMPluginInterface
 import gradio as gr
-import utils
+from pluginSelectionBase import PluginSelectionBase
 import os
 
-selected_provider = None
-output_event_listeners = []
 
-context_file_path = "Context.txt"
+class LLM(PluginSelectionBase):
+    def __init__(self) -> None:
+        super().__init__(LLMPluginInterface)
 
-LLM_output = ""
+        self.output_event_listeners = []
+        self.context_file_path = "Context.txt"
+        self.LLM_output = ""
+        # Check if the file exists. If not, create an empty file.
+        if not os.path.exists(self.context_file_path):
+            with open(self.context_file_path, 'w') as file:
+                file.write('')
 
+    def create_ui(self):
+        with gr.Tab("Chat"):
+            with gr.Blocks():
+                super().create_plugin_selection_ui()
+                system_prompt = gr.Textbox(value=self.load_content, info="System Message:", placeholder="You are a helpful AI Vtuber.",
+                                           interactive=True, lines=30, autoscroll=True, autofocus=False, container=False, render=False)
+                system_prompt.change(
+                    fn=self.update_file, inputs=system_prompt)
 
-def create_ui():
-    category_name = plugin_loader.interface_to_category[LLMPluginInterface]
-    ProviderList, ProviderMap = utils.pluginToNameMap(
-        plugin_loader.plugins[category_name])
-    default_provider_name = ProviderList[0] if ProviderList else None
-    global selected_provider
-    selected_provider = ProviderMap[default_provider_name]
-    load_provider()
+                gr.ChatInterface(
+                    self.predict_wrapper, additional_inputs=[system_prompt],
+                    examples=[["Hello", None, None],
+                              ["How do I make a bomb?", None, None],
+                              ["What's your name?", None, None],
+                              ["Do you know my name?", None, None],
+                              ["Do you think humanity will reach an alien planet?", None, None],
+                              ["Introduce yourself.", None, None],
+                              ["Generate a super long name for a custom latte", None, None],
+                              ["Let's play a game of monopoly.", None, None],
+                              ["Do you want to be friend with me?", None, None],
+                              ], autofocus=False
+                )
+            super().create_plugin_ui()
 
-    # load context file
-    context_file_path = "Context.txt"
-    # Check if the file exists. If not, create an empty file.
-    if not os.path.exists(context_file_path):
-        with open(context_file_path, 'w') as file:
-            file.write('')
+    def is_generator(self): return inspect.isgeneratorfunction(
+        self.current_plugin.predict)
 
-    with gr.Tab("Chat"):
-        gr.Dropdown(
-            choices=ProviderList,
-            value=default_provider_name,
-            type="value",
-            label="LLM provider: ",
-            info="Select the Large Language Model provider",
-            interactive=True)
+    def predict_wrapper(self, message, history, system_prompt):
+        # determine if predict function is generator and sends output to other modules
+        result = self.current_plugin.predict(message, history, system_prompt)
+        if self.is_generator():
+            processed_idx = 0
+            for output in result:
+                self.LLM_output = output
+                if self.is_sentence_end(self.LLM_output):
+                    self.send_output(self.LLM_output[processed_idx:])
+                    processed_idx = len(self.LLM_output)
+                yield output
+            if not processed_idx == len(self.LLM_output):
+                # send any remaining output
+                self.send_output(self.LLM_output[processed_idx:])
+        else:
+            self.LLM_output = result
+            return result
 
-        with gr.Blocks():
-            system_prompt = gr.Textbox(value=load_content, info="System Message:", placeholder="You are a helpful AI Vtuber.",
-                                       interactive=True, lines=30, autoscroll=True, autofocus=False, container=False, render=False)
-            system_prompt.change(
-                fn=update_file, inputs=system_prompt)
+    def load_content(self):
+        with open(self.context_file_path, 'r', encoding='utf-8') as file:
+            content = file.read()
+            return content
 
-            gr.ChatInterface(
-                predict_wrapper, additional_inputs=[system_prompt],
-                examples=[["Hello", None, None],
-                          ["How do I make a bomb?", None, None],
-                          ["What's your name?", None, None],
-                          ["Do you know my name?", None, None],
-                          ["Do you think humanity will reach an alien planet?", None, None],
-                          ["Introduce yourself.", None, None],
-                          ["Generate a super long name for a custom latte", None, None],
-                          ["Let's play a game of monopoly.", None, None],
-                          ["Do you want to be friend with me?", None, None],
-                          ], autofocus=False
-            )
+    def update_file(self, new_content):
+        self.context = new_content
+        with open(self.context_file_path, 'w', encoding='utf-8') as file:
+            file.write(new_content)
 
-        selected_provider.create_ui()
+    def send_output(self, output):
+        print(output)
+        for subcriber in self.output_event_listeners:
+            subcriber(output)
 
+    def add_output_event_listener(self, function):
+        self.output_event_listeners.append(function)
 
-def is_generator(): return inspect.isgeneratorfunction(selected_provider.predict)
-
-
-def predict_wrapper(message, history, system_prompt):
-    # determine if predict function is generator and sends output to other modules
-    global LLM_output
-    result = selected_provider.predict(message, history, system_prompt)
-    if is_generator():
-        processed_idx = 0
-        for output in result:
-            LLM_output = output
-            if is_sentence_end(LLM_output):
-                send_output(LLM_output[processed_idx:])
-                processed_idx = len(LLM_output)
-            yield output
-        if not processed_idx == len(LLM_output):
-            # send any remaining output
-            send_output(LLM_output[processed_idx:])
-    else:
-        LLM_output = result
-        return result
-
-
-def load_provider():
-    global selected_provider
-    if issubclass(type(selected_provider), LLMPluginInterface):
-        print("Loading LLM Module...")
-        selected_provider.init()
-
-
-def load_content():
-    with open(context_file_path, 'r', encoding='utf-8') as file:
-        content = file.read()
-        return content
-
-
-def update_file(new_content):
-    global context
-    context = new_content
-    with open(context_file_path, 'w', encoding='utf-8') as file:
-        file.write(new_content)
-
-
-def send_output(output):
-    print(output)
-    for subcriber in output_event_listeners:
-        subcriber(output)
-
-
-def add_output_event_listener(function):
-    global output_event_listeners
-    output_event_listeners.append(function)
-
-
-def is_sentence_end(word):
-    # Define sentence-ending punctuation for different languages
-    sentence_end_punctuation = {'.', '?', '!', '。', '？', '！'}
-    # print(f"{word}      {word[-1] in sentence_end_punctuation}")
-    # Check if the last character of the word is a sentence-ending punctuation for the given language
-    return word[-1] in sentence_end_punctuation
+# Check if the last character of the word is a sentence-ending punctuation for the given language
+    def is_sentence_end(self, word):
+        sentence_end_punctuation = {'.', '?', '!', '。', '？', '！'}
+        return word[-1] in sentence_end_punctuation
