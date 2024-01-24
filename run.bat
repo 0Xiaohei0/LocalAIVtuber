@@ -114,4 +114,5 @@ if not exist "%conda_path_bin%" (
 echo Starting main.py...
 python main.py
 
+:end
 pause
