@@ -10,5 +10,6 @@ Context*.txt
 plugins/voicevox/VOICEVOX
 plugins/Local_EN_to_JA/models--staka--fugumt-en-ja
 *.wav
+*.mp3
 *.exe
 !vs_BuildTools.exe
