@@ -12,4 +12,5 @@ plugins/Local_EN_to_JA/models--staka--fugumt-en-ja
 *.wav
 *.mp3
 *.exe
+*.pt
 !vs_BuildTools.exe
