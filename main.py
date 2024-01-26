@@ -4,6 +4,10 @@ from LLM import LLM
 from TTS import TTS
 from Translate import Translate
 
+# allow relative imports in plugins folder
+import sys
+sys.path.append('F:\programs\Python\VtuberChess\plugins')
+
 # load plugins
 plugin_loader.load_plugins()
 
