@@ -7,8 +7,8 @@ import asyncio
 import gradio as gr
 from pydub import AudioSegment
 import numpy as np
-import io
 import soundfile as sf
+from .edge_tts_voices import SUPPORTED_VOICES
 
 
 class RVCPlugin(TTSPluginInterface):
@@ -21,6 +21,8 @@ class RVCPlugin(TTSPluginInterface):
     rvc_model_dir = os.path.join(current_module_directory, "rvc_model_dir")
     rvc_index_dir = os.path.join(current_module_directory, "rvc_index_dir")
 
+    edge_tts_voice = "en-US-AnaNeural"
+
     def init(self):
         # where model.pth files are stored.
         os.environ['RVC_MODELDIR'] = self.rvc_model_dir
@@ -31,17 +33,15 @@ class RVCPlugin(TTSPluginInterface):
         # If the output audio tensor should block until fully loaded, this can be ignored. But if you want to run in a larger torch pipeline, setting to False will improve performance a little.
         os.environ['RVC_RETURNBLOCKING'] = 'True'
 
-        self.kikuri = RVC(
+        self.model = RVC(
             'kikuri.pth', index='added_IVF571_Flat_nprobe_1_kikuri_v2')
-        print(self.kikuri.name)
-        print('Paths', self.kikuri.model_path, self.kikuri.index_path)
+        print(self.model.name)
+        print('Paths', self.model.model_path, self.model.index_path)
 
     def synthesize(self, text):
 
         print(f'Outputting audio to {self.EDGE_TTS_OUTPUT_FILENAME}')
-        # print(f'{string}')
-        VOICE = "en-GB-SoniaNeural"
-        communicate = edge_tts.Communicate(text, VOICE)
+        communicate = edge_tts.Communicate(text, self.edge_tts_voice)
         asyncio.run(communicate.save(self.EDGE_TTS_OUTPUT_FILENAME))
 
         # Load the MP3 file
@@ -54,8 +54,8 @@ class RVCPlugin(TTSPluginInterface):
         samples = np.array(audio.get_array_of_samples())
 
         aud, sr = load_torchaudio(wav_filename)
-        paudio1 = self.kikuri(aud, f0_up_key=6, output_device='cpu',
-                              output_volume=RVC.MATCH_ORIGINAL, index_rate=.75)
+        paudio1 = self.model(aud, f0_up_key=6, output_device='cpu',
+                             output_volume=RVC.MATCH_ORIGINAL, index_rate=.75)
 
         sf.write(self.RVC_OUTPUT_FILENAME, paudio1, 44100)
 
@@ -67,5 +67,24 @@ class RVCPlugin(TTSPluginInterface):
 
     def create_ui(self):
         with gr.Accordion(label="rvc Options", open=False):
+            with gr.Row():
+                self.edge_tts_speaker_dropdown = gr.Dropdown(
+                    choices=SUPPORTED_VOICES,
+                    value=self.edge_tts_voice,
+                    label="edge_tts_speaker: "
+                )
+                # self.rvc_model = gr.Dropdown(
+                #     choices=[],
+                #     value=self.selected_style['name'],
+                #     label="rvc_model: "
+                # )
+
+                self.edge_tts_speaker_dropdown.input(self.on_speaker_change, inputs=[
+                    self.edge_tts_speaker_dropdown], outputs=[])
+                # self.style_dropdown.input(
+                #     self.on_style_change, inputs=[self.style_dropdown])
             gr.Markdown(
                 "test")
+
+    def on_speaker_change(self, choice):
+        self.edge_tts_voice = choice
