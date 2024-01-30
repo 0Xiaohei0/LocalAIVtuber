@@ -23,6 +23,10 @@ class RVCPlugin(TTSPluginInterface):
 
     edge_tts_voice = "en-US-AnaNeural"
     rvc_model_name = 'kikuri.pth'
+    use_rvc = True
+    transpose = 0
+    index_rate = .75
+    protect = 0.5
 
     def init(self):
         # where model.pth files are stored.
@@ -54,14 +58,15 @@ class RVCPlugin(TTSPluginInterface):
         audio = AudioSegment.from_wav(wav_filename)
         samples = np.array(audio.get_array_of_samples())
 
-        aud, sr = load_torchaudio(wav_filename)
-        paudio1 = self.model(aud, f0_up_key=0, output_device='cpu',
-                             output_volume=RVC.MATCH_ORIGINAL, index_rate=.75)
+        if (self.use_rvc):
+            aud, sr = load_torchaudio(wav_filename)
+            paudio1 = self.model(aud, f0_up_key=self.transpose, output_device='cpu',
+                                 output_volume=RVC.MATCH_ORIGINAL, index_rate=self.index_rate, protect=self.protect)
 
-        sf.write(self.RVC_OUTPUT_FILENAME, paudio1, 44100)
+            sf.write(self.RVC_OUTPUT_FILENAME, paudio1, 44100)
 
-        audio = AudioSegment.from_wav(self.RVC_OUTPUT_FILENAME)
-        samples = np.array(audio.get_array_of_samples())
+            audio = AudioSegment.from_wav(self.RVC_OUTPUT_FILENAME)
+            samples = np.array(audio.get_array_of_samples())
 
         # Gradio expects (sample_rate, audio_array)
         return (audio.frame_rate, samples)
@@ -74,9 +79,21 @@ class RVCPlugin(TTSPluginInterface):
                     value=self.edge_tts_voice,
                     label="edge_tts_speaker: "
                 )
+
+            with gr.Row():
+                self.use_rvc_checkbox = gr.Checkbox(
+                    label='Use RVC', value=self.use_rvc)
                 self.rvc_model_dropdown = gr.Dropdown(label="RVC models:",
                                                       choices=self.rvc_model_names, value=self.rvc_model_names[0] if len(self.rvc_model_names) > 0 else None, interactive=True)
                 self.refresh_button = gr.Button("Refresh", variant="primary")
+
+            with gr.Column():
+                self.transpose_slider = gr.Slider(value=self.transpose,
+                                                  minimum=-12, maximum=12, step=1, label='Transpose')
+                self.index_rate_slider = gr.Slider(value=self.index_rate,
+                                                   minimum=0, maximum=1, step=0.01, label='Index Rate')
+                self.protect_slider = gr.Slider(value=self.protect, minimum=0, maximum=0.5,
+                                                step=0.01, label='Protect')
 
                 self.rvc_model_dropdown.input(self.on_rvc_model_change, inputs=[
                     self.rvc_model_dropdown], outputs=[])
@@ -85,10 +102,30 @@ class RVCPlugin(TTSPluginInterface):
 
                 self.edge_tts_speaker_dropdown.input(self.on_speaker_change, inputs=[
                     self.edge_tts_speaker_dropdown], outputs=[])
-                # self.style_dropdown.input(
-                #     self.on_style_change, inputs=[self.style_dropdown])
+
+                self.use_rvc_checkbox.change(
+                    self.on_use_rvc_click, self.use_rvc_checkbox, None)
+                self.transpose_slider.change(
+                    self.on_transpose_change, self.transpose_slider, None)
+                self.index_rate_slider.change(
+                    self.on_index_rate_change, self.index_rate_slider, None)
+                self.protect_slider.change(
+                    self.on_protect_change, self.protect_slider, None)
+
             gr.Markdown(
                 "test")
+
+    def on_transpose_change(self, value):
+        self.transpose = value
+
+    def on_index_rate_change(self, value):
+        self.index_rate = value
+
+    def on_protect_change(self, value):
+        self.protect = value
+
+    def on_use_rvc_click(self, use):
+        self.use_rvc = use
 
     def on_speaker_change(self, choice):
         self.edge_tts_voice = choice
