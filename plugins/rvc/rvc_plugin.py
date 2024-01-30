@@ -24,7 +24,7 @@ class RVCPlugin(TTSPluginInterface):
     rvc_index_dir = os.path.join(current_module_directory, "rvc_index_dir")
 
     edge_tts_voice = "en-US-AnaNeural"
-    rvc_model_name = 'kikuri.pth'
+    rvc_model_name = 'GawrGura_Sing.pth'
     use_rvc = True
     transpose = 0
     index_rate = .75
@@ -124,8 +124,6 @@ class RVCPlugin(TTSPluginInterface):
 
                 self.download_button.click(
                     self.download_model_from_url, inputs=self.download_model_input)
-            gr.Markdown(
-                "test")
 
     def on_transpose_change(self, value):
         self.transpose = value
