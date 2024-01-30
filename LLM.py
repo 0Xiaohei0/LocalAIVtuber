@@ -77,10 +77,13 @@ class LLM(PluginSelectionBase):
         for subcriber in self.output_event_listeners:
             subcriber(output)
 
+    def receive_input(self, text):
+        pass
+
     def add_output_event_listener(self, function):
         self.output_event_listeners.append(function)
 
-# Check if the last character of the word is a sentence-ending punctuation for the given language
+    # Check if the last character of the word is a sentence-ending punctuation for the given language
     def is_sentence_end(self, word):
         sentence_end_punctuation = {'.', '?', '!', '。', '？', '！'}
         return word[-1] in sentence_end_punctuation
