@@ -94,7 +94,7 @@ echo installing C++ Build Tools, this should take a minute...
 :: Check for errors in the installation process
 if %ERRORLEVEL% neq 0 (
     echo Installation failed with error code %ERRORLEVEL%.
-    exit /b %ERRORLEVEL%
+    goto end
 )
 
 

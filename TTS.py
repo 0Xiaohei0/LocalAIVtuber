@@ -133,9 +133,12 @@ class TTS(PluginSelectionBase):
                 # Path to the ffmpeg.exe inside the extracted folder
                 ffmpeg_exe_path = os.path.join(
                     'ffmpeg-6.1.1-essentials_build', 'bin', 'ffmpeg.exe')
+                ffprobe_exe_path = os.path.join(
+                    'ffmpeg-6.1.1-essentials_build', 'bin', 'ffprobe.exe')
 
                 # Move ffmpeg.exe to the base directory
                 shutil.move(ffmpeg_exe_path, current_module_directory)
+                shutil.move(ffprobe_exe_path, current_module_directory)
 
                 # Delete the extracted folder
                 shutil.rmtree('ffmpeg-6.1.1-essentials_build')
