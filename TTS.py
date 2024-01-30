@@ -15,6 +15,8 @@ import simpleaudio as sa
 
 
 class TTS(PluginSelectionBase):
+    output_event_listeners = []
+
     input_queue = Queue()
     audio_data_queue = Queue()
     audio_process_thread = None
@@ -145,3 +147,11 @@ class TTS(PluginSelectionBase):
 
                 # Delete the ZIP file after extraction
                 os.remove(file_name)
+
+    def send_output(self, output):
+        print(output)
+        for subcriber in self.output_event_listeners:
+            subcriber(output)
+
+    def add_output_event_listener(self, function):
+        self.output_event_listeners.append(function)

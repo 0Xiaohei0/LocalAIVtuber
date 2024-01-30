@@ -13,7 +13,8 @@ class PluginLoader:
             InputPluginInterface: 'input_gathering',
             LLMPluginInterface: 'language_model',
             TranslationPluginInterface: 'translation',
-            TTSPluginInterface: 'text_to_speech'
+            TTSPluginInterface: 'text_to_speech',
+            VtuberPluginInterface: 'vtuber'
         }
         self.plugins = {category: []
                         for category in self.interface_to_category.values()}

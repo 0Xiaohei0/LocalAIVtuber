@@ -3,6 +3,7 @@ from pluginLoader import plugin_loader
 from Input import Input
 from LLM import LLM
 from TTS import TTS
+from VTuber import Vtuber
 from Translate import Translate
 
 # allow relative imports in plugins folder
@@ -18,11 +19,13 @@ with gr.Blocks() as main_interface:
     llm = LLM()
     translate = Translate()
     tts = TTS()
+    vtuber = Vtuber()
 
     input.create_ui()
     llm.create_ui()
     translate.create_ui()
     tts.create_ui()
+    vtuber.create_ui()
 
     input.add_output_event_listener(llm.receive_input)
     llm.add_output_event_listener(translate.receive_input)

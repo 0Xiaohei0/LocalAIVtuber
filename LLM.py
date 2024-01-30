@@ -1,4 +1,6 @@
 import inspect
+from queue import Queue
+import threading
 from pluginInterface import LLMPluginInterface
 import gradio as gr
 from pluginSelectionBase import PluginSelectionBase
@@ -6,6 +8,11 @@ import os
 
 
 class LLM(PluginSelectionBase):
+    history = []
+    input_queue = Queue()
+    input_process_thread = None
+    system_prompt_text = ""
+
     def __init__(self) -> None:
         super().__init__(LLMPluginInterface)
 
@@ -45,6 +52,7 @@ class LLM(PluginSelectionBase):
         self.current_plugin.predict)
 
     def predict_wrapper(self, message, history, system_prompt):
+        print(f"history: {history}")
         # determine if predict function is generator and sends output to other modules
         result = self.current_plugin.predict(message, history, system_prompt)
         if self.is_generator():
@@ -65,12 +73,14 @@ class LLM(PluginSelectionBase):
     def load_content(self):
         with open(self.context_file_path, 'r', encoding='utf-8') as file:
             content = file.read()
+            self.system_prompt_text = content
             return content
 
     def update_file(self, new_content):
         self.context = new_content
         with open(self.context_file_path, 'w', encoding='utf-8') as file:
             file.write(new_content)
+        self.system_prompt_text = new_content
 
     def send_output(self, output):
         print(output)
@@ -78,7 +88,8 @@ class LLM(PluginSelectionBase):
             subcriber(output)
 
     def receive_input(self, text):
-        pass
+        self.input_queue.put(text)
+        self.process_input_queue()
 
     def add_output_event_listener(self, function):
         self.output_event_listeners.append(function)
@@ -87,3 +98,17 @@ class LLM(PluginSelectionBase):
     def is_sentence_end(self, word):
         sentence_end_punctuation = {'.', '?', '!', '。', '？', '！'}
         return word[-1] in sentence_end_punctuation
+
+    def process_input_queue(self):
+        def generate_response():
+            while (not self.input_queue.empty()):
+                # generate audio data and queue up for playing
+                self.predict_wrapper(
+                    self.input_queue.get(), self.history, self.system_prompt_text)
+
+        # Check if the current thread is alive
+        if self.input_process_thread is None or not self.input_process_thread.is_alive():
+            # Create and start a new thread
+            self.input_process_thread = threading.Thread(
+                target=generate_response)
+            self.input_process_thread.start()

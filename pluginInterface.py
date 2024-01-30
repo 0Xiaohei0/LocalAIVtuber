@@ -47,3 +47,11 @@ class TTSPluginInterface:
 
     def create_ui(self):
         pass
+
+
+class VtuberPluginInterface:
+    def init(self):
+        pass
+
+    def create_ui(self):
+        pass
