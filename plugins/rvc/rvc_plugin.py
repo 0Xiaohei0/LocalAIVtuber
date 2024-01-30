@@ -1,3 +1,4 @@
+from utils import download_and_extract_zip
 from .inferrvc import load_torchaudio
 from .inferrvc import RVC
 import edge_tts
@@ -9,6 +10,7 @@ from pydub import AudioSegment
 import numpy as np
 import soundfile as sf
 from .edge_tts_voices import SUPPORTED_VOICES
+import shutil
 
 
 class RVCPlugin(TTSPluginInterface):
@@ -38,9 +40,11 @@ class RVCPlugin(TTSPluginInterface):
         # If the output audio tensor should block until fully loaded, this can be ignored. But if you want to run in a larger torch pipeline, setting to False will improve performance a little.
         os.environ['RVC_RETURNBLOCKING'] = 'True'
 
+        if not os.path.exists(os.path.join(self.current_module_directory, "rvc_model_dir", "GawrGura_Sing.pth")):
+            self.download_model_from_url(
+                "https://huggingface.co/rayzox57/GawrGura_RVC/resolve/main/GawrGura_Sing_v2_400e.zip")
+
         self.model = RVC(self.rvc_model_name)
-        print(self.model.name)
-        print('Paths', self.model.model_path, self.model.index_path)
         self.update_rvc_model_list()
 
     def synthesize(self, text):
@@ -87,9 +91,15 @@ class RVCPlugin(TTSPluginInterface):
                                                       choices=self.rvc_model_names, value=self.rvc_model_names[0] if len(self.rvc_model_names) > 0 else None, interactive=True)
                 self.refresh_button = gr.Button("Refresh", variant="primary")
 
+            with gr.Row():
+                self.download_model_input = gr.Textbox(label="Model url:")
+                self.download_button = gr.Button("Download")
+            gr.Markdown(
+                "You can find models here: https://voice-models.com/top")
+
             with gr.Column():
                 self.transpose_slider = gr.Slider(value=self.transpose,
-                                                  minimum=-12, maximum=12, step=1, label='Transpose')
+                                                  minimum=-24, maximum=24, step=1, label='Transpose')
                 self.index_rate_slider = gr.Slider(value=self.index_rate,
                                                    minimum=0, maximum=1, step=0.01, label='Index Rate')
                 self.protect_slider = gr.Slider(value=self.protect, minimum=0, maximum=0.5,
@@ -112,6 +122,8 @@ class RVCPlugin(TTSPluginInterface):
                 self.protect_slider.change(
                     self.on_protect_change, self.protect_slider, None)
 
+                self.download_button.click(
+                    self.download_model_from_url, inputs=self.download_model_input)
             gr.Markdown(
                 "test")
 
@@ -143,4 +155,44 @@ class RVCPlugin(TTSPluginInterface):
         for name in os.listdir(self.rvc_model_dir):
             if name.endswith(".pth"):
                 self.rvc_model_names.append(name)
-                print(self.rvc_model_names)
+
+    def download_model_from_url(self, url):
+        folder_path = download_and_extract_zip(
+            url, extract_to=self.current_module_directory)
+
+        # Find the .pth file and get its base name
+        for file in os.listdir(folder_path):
+            if file.endswith('.pth'):
+                base_name = os.path.splitext(file)[0]
+                pth_file_path = os.path.join(folder_path, file)
+                break
+
+        if pth_file_path and base_name:
+            # Look for the corresponding .index file
+            for file in os.listdir(folder_path):
+                if file.endswith('.index'):
+                    original_index_file_path = os.path.join(folder_path, file)
+                    new_index_file_path = os.path.join(
+                        folder_path, base_name + '.index')
+                    os.rename(original_index_file_path, new_index_file_path)
+
+                    # Move the .pth file
+                    shutil.move(pth_file_path, os.path.join(
+                        self.rvc_model_dir, os.path.basename(pth_file_path)))
+
+                    # Move the .index file
+                    shutil.move(new_index_file_path, os.path.join(
+                        self.rvc_index_dir, os.path.basename(new_index_file_path)))
+
+                    # Remove the folder once done
+                    try:
+                        # Use this if the folder is expected to be empty
+                        os.rmdir(folder_path)
+                    except OSError:
+                        # Use this if the folder might contain other files
+                        shutil.rmtree(folder_path)
+                    break
+            else:
+                print(f"No .index file found for {base_name}")
+        else:
+            print("No .pth file found in the folder.")
