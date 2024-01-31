@@ -50,8 +50,17 @@ class TTSPluginInterface:
 
 
 class VtuberPluginInterface:
+    class AvatarData():
+        mouth_open = 0
+        # TODO current emotion, current pheonome etc
+
+    avatar_data = AvatarData()
+
     def init(self):
         pass
 
     def create_ui(self):
         pass
+
+    def set_avatar_data(self, data):
+        self.avatar_data = data

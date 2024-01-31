@@ -81,3 +81,6 @@ class PluginSelectionBase():
             if provider.name == name:
                 return provider
         return None
+
+    def get_current_plugin(self):
+        return self.current_plugin

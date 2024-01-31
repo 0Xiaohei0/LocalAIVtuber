@@ -9,6 +9,7 @@ models
 Context*.txt
 plugins/voicevox/VOICEVOX
 plugins/Local_EN_to_JA/models--staka--fugumt-en-ja
+plugins/VtubeStudio/token.txt
 *.wav
 *.mp3
 *.exe

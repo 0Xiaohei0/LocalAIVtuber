@@ -19,13 +19,17 @@ class Vtuber(PluginSelectionBase):
 
     def __init__(self) -> None:
         super().__init__(VtuberPluginInterface)
+        self.data = VtuberPluginInterface.AvatarData()
 
     def create_ui(self):
         with gr.Tab("Vtuber"):
             super().create_plugin_selection_ui()
             super().create_plugin_ui()
 
-    def receive_input(self, text):
+    def receive_input(self, audio_chunk):
+        # audio_chunk
+        self.data.mouth_open = 0.5
+        self.get_current_plugin().set_avatar_data(self.data)
         pass
 
     def send_output(self, output):

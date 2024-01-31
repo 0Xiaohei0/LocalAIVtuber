@@ -14,6 +14,10 @@ import os
 class VtubeStudio(VtuberPluginInterface):
     isAuthenticated = False
     token = ""
+    current_module_directory = os.path.dirname(__file__)
+    token_path = os.path.join(
+        current_module_directory, "token.txt")
+    current_volume = 0
 
     def init(self):
         pass
@@ -25,11 +29,14 @@ class VtubeStudio(VtuberPluginInterface):
         self.authenticate_button.click(self.on_authenticate_click)
 
     def on_authenticate_click(self):
-        gr.Info("Aquiring token, please continue in Vtube Studio...")
+        if not os.path.exists(self.token_path):
+            gr.Info("Aquiring token, please continue in Vtube Studio...")
+        else:
+            gr.Info("Token Found, attempting to authenticate with token...")
         thread = threading.Thread(target=self.websocket_thread)
         thread.start()
 
-    def authenticate(self):
+    def getToken(self):
         token_request = {
             "apiName": "VTubeStudioPublicAPI",
             "apiVersion": "1.0",
@@ -43,7 +50,17 @@ class VtubeStudio(VtuberPluginInterface):
         self.ws.send(json.dumps(token_request))
 
     def on_open(self, ws):
-        self.authenticate()
+        # Check if the file exists. If not, create an empty file.
+        if not os.path.exists(self.token_path):
+            with open(self.token_path, 'w') as file:
+                file.write('')
+            self.getToken()
+
+        else:
+            with open(self.token_path, 'r', encoding='utf-8') as file:
+                content = file.read()
+                self.token = content
+            self.send_authentication_request()
 
     def on_message(self, ws, message):
         print("Received message:", message)
@@ -52,11 +69,13 @@ class VtubeStudio(VtuberPluginInterface):
         if response['messageType'] == "AuthenticationTokenResponse":
             self.token = response['data']['authenticationToken']
             print("Authentication token received:", self.token)
+            with open(self.token_path, 'w') as file:
+                file.write(self.token)
             self.send_authentication_request()
         elif response['messageType'] == "AuthenticationResponse":
-            self.token = response['data']['authenticationToken']
-            print("Authentication token received:", self.token)
-            self.send_authentication_request()
+            self.token = response['data']['authenticated'] == True
+            print(response['data']['reason'])
+            threading.Thread(target=self.mouth_data_thread).start()
 
     def send_authentication_request(self):
         auth_request = {
@@ -85,3 +104,24 @@ class VtubeStudio(VtuberPluginInterface):
                                          on_error=self.on_error,
                                          on_close=self.on_close)
         self.ws.run_forever()
+
+    def mouth_data_thread(self):
+        while True:
+            print(f"Setting MouthOpen to {self.avatar_data.mouth_open}")
+            message = {
+                "apiName": "VTubeStudioPublicAPI",
+                "apiVersion": "1.0",
+                "requestID": "2",
+                "messageType": "InjectParameterDataRequest",
+                "data": {
+                    "mode": "set",
+                    "parameterValues": [
+                        {
+                            "id": "MouthOpen",
+                            "value": self.avatar_data.mouth_open
+                        }
+                    ]
+                }
+            }
+            self.ws.send(json.dumps(message))
+            time.sleep(0.5)
