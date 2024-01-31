@@ -1,8 +1,10 @@
+import io
 import os
 from queue import Queue
 import shutil
 import threading
 import zipfile
+import numpy as np
 
 import requests
 from tqdm import tqdm
@@ -12,6 +14,9 @@ from pluginSelectionBase import PluginSelectionBase
 import utils
 from pydub import AudioSegment
 import simpleaudio as sa
+import pyaudio
+from pydub import AudioSegment
+from pydub.utils import audioop
 
 
 class TTS(PluginSelectionBase):
@@ -46,7 +51,9 @@ class TTS(PluginSelectionBase):
             super().create_plugin_ui()
 
     def wrapper_synthesize(self, text):
-        return self.current_plugin.synthesize(text)
+        result = self.current_plugin.synthesize(text)
+        self.play_sound_from_bytes(result)
+        return result
 
     VOICE_OUTPUT_FILENAME = "synthesized_voice.wav"
 
@@ -79,18 +86,56 @@ class TTS(PluginSelectionBase):
             self.audio_playback_thread = threading.Thread(target=play_audio)
             self.audio_playback_thread.start()
 
-    def play_sound_from_bytes(self, audio_data):
-        with open(self.VOICE_OUTPUT_FILENAME, "wb") as file:
-            file.write(audio_data)
-        audio = AudioSegment.from_wav(self.VOICE_OUTPUT_FILENAME)
-        # Convert audio to raw data
-        raw_data = audio.raw_data
-        num_channels = audio.channels
-        bytes_per_sample = audio.sample_width
-        sample_rate = audio.frame_rate
-        play_obj = sa.play_buffer(raw_data, num_channels,
-                                  bytes_per_sample, sample_rate)
-        play_obj.wait_done()
+    def play_sound_from_bytes(self, audio_data, chunk_size=1024):
+        """
+        Play audio from bytes, analyze, and normalize volume in real time without breaks.
+        Normalized volume will be in the range [0, 1].
+        """
+        # Open the audio data with PyDub
+        audio = AudioSegment.from_file(io.BytesIO(audio_data), format="wav")
+
+        # Determine the maximum possible RMS value to scale normalization
+        max_rms = self.find_max_rms(audio)
+
+        p = pyaudio.PyAudio()
+
+        stream = p.open(format=p.get_format_from_width(audio.sample_width),
+                        channels=audio.channels,
+                        rate=audio.frame_rate,
+                        output=True,
+                        frames_per_buffer=chunk_size)
+
+        # Process and play audio in chunks
+        for i in range(0, len(audio.raw_data), chunk_size):
+            chunk_data = audio.raw_data[i:i+chunk_size]
+
+            # Calculate RMS of this chunk and normalize to 0-1 scale
+            rms = audioop.rms(chunk_data, audio.sample_width)
+            normalized_volume = rms / max_rms
+            print(f"Normalized Volume: {normalized_volume}")
+            self.send_output(normalized_volume)
+            # Play chunk
+            stream.write(chunk_data)
+
+        # Stop and close the stream
+        stream.stop_stream()
+        stream.close()
+
+        # Close PyAudio
+        p.terminate()
+
+    def find_max_rms(self, audio_segment):
+        """
+        Find the maximum RMS value in the given audio segment.
+        """
+        chunk_size = 1024  # You can adjust the chunk size if needed
+        max_rms = 0
+        for i in range(0, len(audio_segment.raw_data), chunk_size):
+            chunk_data = audio_segment.raw_data[i:i+chunk_size]
+            rms = audioop.rms(chunk_data, audio_segment.sample_width)
+            if rms > max_rms:
+                max_rms = rms
+        return max_rms
 
     def check_ffmpeg(self):
         # https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.7z
@@ -149,7 +194,7 @@ class TTS(PluginSelectionBase):
                 os.remove(file_name)
 
     def send_output(self, output):
-        print(output)
+        # print(output)
         for subcriber in self.output_event_listeners:
             subcriber(output)
 

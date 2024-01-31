@@ -11,7 +11,7 @@ from pluginInterface import TTSPluginInterface
 class Silero(TTSPluginInterface):
     silero_server_started = False
     SILERO_URL_LOCAL = "127.0.0.1"
-    PORT = "8123"
+    PORT = "8435"
     current_module_directory = os.path.dirname(__file__)
     session_path = os.path.join(
         current_module_directory, "session")

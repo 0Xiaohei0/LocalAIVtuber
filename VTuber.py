@@ -26,9 +26,8 @@ class Vtuber(PluginSelectionBase):
             super().create_plugin_selection_ui()
             super().create_plugin_ui()
 
-    def receive_input(self, audio_chunk):
-        # audio_chunk
-        self.data.mouth_open = 0.5
+    def receive_input(self, normalized_volume):
+        self.data.mouth_open = normalized_volume
         self.get_current_plugin().set_avatar_data(self.data)
         pass
 

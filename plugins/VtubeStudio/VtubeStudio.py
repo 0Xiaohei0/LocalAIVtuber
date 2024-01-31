@@ -63,19 +63,22 @@ class VtubeStudio(VtuberPluginInterface):
             self.send_authentication_request()
 
     def on_message(self, ws, message):
-        print("Received message:", message)
         response = json.loads(message)
-
+        if response['messageType'] == "InjectParameterDataResponse":
+            return
+        print("Received message:", message)
         if response['messageType'] == "AuthenticationTokenResponse":
             self.token = response['data']['authenticationToken']
             print("Authentication token received:", self.token)
             with open(self.token_path, 'w') as file:
                 file.write(self.token)
             self.send_authentication_request()
-        elif response['messageType'] == "AuthenticationResponse":
+            return
+        if response['messageType'] == "AuthenticationResponse":
             self.token = response['data']['authenticated'] == True
             print(response['data']['reason'])
             threading.Thread(target=self.mouth_data_thread).start()
+            return
 
     def send_authentication_request(self):
         auth_request = {
@@ -107,7 +110,7 @@ class VtubeStudio(VtuberPluginInterface):
 
     def mouth_data_thread(self):
         while True:
-            print(f"Setting MouthOpen to {self.avatar_data.mouth_open}")
+            # print(f"Setting MouthOpen to {self.avatar_data.mouth_open}")
             message = {
                 "apiName": "VTubeStudioPublicAPI",
                 "apiVersion": "1.0",
@@ -119,9 +122,13 @@ class VtubeStudio(VtuberPluginInterface):
                         {
                             "id": "MouthOpen",
                             "value": self.avatar_data.mouth_open
-                        }
+                        },
+                        {
+                            "id": "VoiceVolume",
+                            "value": self.avatar_data.mouth_open
+                        },
                     ]
                 }
             }
             self.ws.send(json.dumps(message))
-            time.sleep(0.5)
+            time.sleep(0.1)
