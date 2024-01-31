@@ -28,7 +28,7 @@ class Vtuber(PluginSelectionBase):
 
     def receive_input(self, normalized_volume):
         self.data.mouth_open = normalized_volume
-        print(f"self.data.mouth_open: {self.data.mouth_open}")
+        # print(f"self.data.mouth_open: {self.data.mouth_open}")
         self.get_current_plugin().set_avatar_data(self.data)
         pass
 

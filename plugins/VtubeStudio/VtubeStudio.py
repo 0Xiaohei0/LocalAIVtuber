@@ -20,7 +20,7 @@ class VtubeStudio(VtuberPluginInterface):
     current_volume = 0
 
     def init(self):
-        pass
+        self.authenticate()
 
     def create_ui(self):
         with gr.Accordion(label="Vtube Studio Options", open=False):
@@ -29,6 +29,9 @@ class VtubeStudio(VtuberPluginInterface):
         self.authenticate_button.click(self.on_authenticate_click)
 
     def on_authenticate_click(self):
+        self.authenticate()
+
+    def authenticate(self):
         if not os.path.exists(self.token_path):
             gr.Info("Aquiring token, please continue in Vtube Studio...")
         else:
