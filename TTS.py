@@ -86,16 +86,28 @@ class TTS(PluginSelectionBase):
             self.audio_playback_thread = threading.Thread(target=play_audio)
             self.audio_playback_thread.start()
 
+    def find_max_rms(self, audio_segment, chunk_size=1024):
+        """
+        Find the maximum RMS value in the given audio segment.
+        """
+        max_rms = 0
+        for i in range(0, len(audio_segment.raw_data), chunk_size):
+            chunk_data = audio_segment.raw_data[i:i+chunk_size]
+            rms = audioop.rms(chunk_data, audio_segment.sample_width)
+            if rms > max_rms:
+                max_rms = rms
+        return max_rms
+
     def play_sound_from_bytes(self, audio_data, chunk_size=1024):
         """
-        Play audio from bytes, analyze, and normalize volume in real time without breaks.
-        Normalized volume will be in the range [0, 1].
+        Play audio from bytes and normalize volume in real time, with improved synchronization.
         """
         # Open the audio data with PyDub
-        audio = AudioSegment.from_file(io.BytesIO(audio_data), format="wav")
+        audio = AudioSegment.from_file(
+            io.BytesIO(audio_data), format="wav")
 
-        # Determine the maximum possible RMS value to scale normalization
-        max_rms = self.find_max_rms(audio)
+        # Find the maximum RMS value for normalization
+        max_rms = self.find_max_rms(audio, chunk_size)
 
         p = pyaudio.PyAudio()
 
@@ -105,17 +117,26 @@ class TTS(PluginSelectionBase):
                         output=True,
                         frames_per_buffer=chunk_size)
 
-        # Process and play audio in chunks
-        for i in range(0, len(audio.raw_data), chunk_size):
+        def process_chunk(i):
             chunk_data = audio.raw_data[i:i+chunk_size]
-
-            # Calculate RMS of this chunk and normalize to 0-1 scale
             rms = audioop.rms(chunk_data, audio.sample_width)
             normalized_volume = rms / max_rms
-            print(f"Normalized Volume: {normalized_volume}")
-            self.send_output(normalized_volume)
-            # Play chunk
+            return chunk_data, normalized_volume
+
+        # Initial volume calculation for the first chunk
+        chunk_data, normalized_volume = process_chunk(0)
+        # Process and play audio in chunks
+        for i in range(chunk_size, len(audio.raw_data), chunk_size):
+            # Play the current chunk
             stream.write(chunk_data)
+
+            # Calculate volume for the next chunk
+            chunk_data, normalized_volume = process_chunk(i)
+            self.send_output(normalized_volume)
+            # print(f"Normalized Volume: {normalized_volume}")
+
+        # Play the last chunk
+        stream.write(chunk_data)
 
         # Stop and close the stream
         stream.stop_stream()
@@ -123,19 +144,6 @@ class TTS(PluginSelectionBase):
 
         # Close PyAudio
         p.terminate()
-
-    def find_max_rms(self, audio_segment):
-        """
-        Find the maximum RMS value in the given audio segment.
-        """
-        chunk_size = 1024  # You can adjust the chunk size if needed
-        max_rms = 0
-        for i in range(0, len(audio_segment.raw_data), chunk_size):
-            chunk_data = audio_segment.raw_data[i:i+chunk_size]
-            rms = audioop.rms(chunk_data, audio_segment.sample_width)
-            if rms > max_rms:
-                max_rms = rms
-        return max_rms
 
     def check_ffmpeg(self):
         # https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.7z
