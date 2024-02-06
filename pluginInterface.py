@@ -1,12 +1,16 @@
 class InputPluginInterface:
+    input_event_listeners = []
+
     def init(self):
         pass
 
-    def gather_input(self):
-        raise NotImplementedError
-
     def create_ui(self):
         pass
+
+    # call this function to send your gathered input to next component
+    def process_input(self, input):
+        for listener in self.input_event_listeners:
+            listener(input)
 
 
 class LLMPluginInterface:

@@ -52,6 +52,7 @@ class LLM(PluginSelectionBase):
         self.current_plugin.predict)
 
     def predict_wrapper(self, message, history, system_prompt):
+        print("into predict_wrapper")
         print(f"history: {history}")
         # determine if predict function is generator and sends output to other modules
         result = self.current_plugin.predict(message, history, system_prompt)
@@ -88,6 +89,7 @@ class LLM(PluginSelectionBase):
             subcriber(output)
 
     def receive_input(self, text):
+        print("llm recieved input")
         self.input_queue.put(text)
         self.process_input_queue()
 
@@ -100,15 +102,17 @@ class LLM(PluginSelectionBase):
         return word[-1] in sentence_end_punctuation
 
     def process_input_queue(self):
-        def generate_response():
-            while (not self.input_queue.empty()):
-                # generate audio data and queue up for playing
-                self.predict_wrapper(
-                    self.input_queue.get(), self.history, self.system_prompt_text)
-
         # Check if the current thread is alive
         if self.input_process_thread is None or not self.input_process_thread.is_alive():
             # Create and start a new thread
             self.input_process_thread = threading.Thread(
-                target=generate_response)
+                target=self.generate_response)
             self.input_process_thread.start()
+
+    def generate_response(self):
+        while (not self.input_queue.empty()):
+            next_input = self.input_queue.get()
+            print(f"next_input: {next_input}")
+            print("before predict_wrapper")
+            self.predict_wrapper(
+                next_input, self.history, self.system_prompt_text)
