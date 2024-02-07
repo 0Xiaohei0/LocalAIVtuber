@@ -6,6 +6,7 @@ import gradio as gr
 from pluginSelectionBase import PluginSelectionBase
 import os
 from liveTextbox import LiveTextbox
+import utils
 
 
 class LLM(PluginSelectionBase):
@@ -14,6 +15,7 @@ class LLM(PluginSelectionBase):
     input_process_thread = None
     system_prompt_text = ""
     liveTextbox = LiveTextbox()
+    process_queue_live_textbox = LiveTextbox()
 
     def __init__(self) -> None:
         super().__init__(LLMPluginInterface)
@@ -50,6 +52,8 @@ class LLM(PluginSelectionBase):
                 )
                 with gr.Accordion("Console"):
                     self.liveTextbox.create_ui()
+                    self.process_queue_live_textbox.create_ui(
+                        lines=3, max_lines=3, label="Input waiting to be processed: ")
             super().create_plugin_ui()
 
     def is_generator(self): return inspect.isgeneratorfunction(
@@ -127,3 +131,5 @@ class LLM(PluginSelectionBase):
             if self.is_generator():
                 for _ in response:
                     pass  # need to keep iterating the generator
+                    self.process_queue_live_textbox.set(
+                        utils.queue_to_list(self.input_queue))

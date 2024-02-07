@@ -8,6 +8,7 @@ import numpy as np
 
 import requests
 from tqdm import tqdm
+from liveTextbox import LiveTextbox
 from pluginInterface import TTSPluginInterface
 import gradio as gr
 from pluginSelectionBase import PluginSelectionBase
@@ -26,6 +27,10 @@ class TTS(PluginSelectionBase):
     audio_data_queue = Queue()
     audio_process_thread = None
     audio_playback_thread = None
+
+    log_live_textbox = LiveTextbox()
+    process_queue_live_textbox = LiveTextbox()
+    playback_queue_live_textbox = LiveTextbox()
 
     def __init__(self) -> None:
         super().__init__(TTSPluginInterface)
@@ -48,6 +53,12 @@ class TTS(PluginSelectionBase):
             )
             gr.Markdown(
                 "Note: Some prividers may only support certain languages.")
+            with gr.Accordion("Console", open=False):
+                self.log_live_textbox.create_ui()
+                self.process_queue_live_textbox.create_ui(
+                    lines=3, max_lines=3, label="Input waiting to be processed: ")
+                self.playback_queue_live_textbox.create_ui(
+                    lines=3, max_lines=3, label="Generated audio waiting to be played: ")
             super().create_plugin_ui()
 
     def wrapper_synthesize(self, text):
@@ -65,8 +76,12 @@ class TTS(PluginSelectionBase):
         def generate_audio():
             while (not self.input_queue.empty()):
                 # generate audio data and queue up for playing
-                self.audio_data_queue.put(function(self.input_queue.get()))
+                input = self.input_queue.get()
+                self.audio_data_queue.put(function(input))
                 self.process_audio_queue(self.play_sound_from_bytes)
+                self.process_queue_live_textbox.set(
+                    utils.queue_to_list(self.input_queue))
+                self.log_live_textbox.print(f"Audio synthesized for: {input}")
 
         # Check if the current thread is alive
         if self.audio_process_thread is None or not self.audio_process_thread.is_alive():
@@ -79,6 +94,8 @@ class TTS(PluginSelectionBase):
             while (not self.audio_data_queue.empty()):
                 # generate audio data and queue up for playing
                 function(self.audio_data_queue.get())
+                self.playback_queue_live_textbox.set(
+                    utils.queue_to_list(self.audio_data_queue))
 
         # Check if the current thread is alive
         if self.audio_playback_thread is None or not self.audio_playback_thread.is_alive():
