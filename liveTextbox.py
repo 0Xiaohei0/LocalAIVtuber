@@ -9,10 +9,10 @@ class LiveTextbox():
         self.lock = threading.Lock()
 
     def create_ui(self):
-        textbox = gr.Textbox(lines=10, max_lines=10,
-                             label="Console log:", show_label=True, interactive=False, autoscroll=False)
-        gr.Interface(fn=self.message_generator, inputs=None,
-                     outputs=[textbox], live=True, allow_flagging=False)
+        textbox = gr.Textbox(lines=10, max_lines=10, container=False,
+                             show_label=True, interactive=False, autoscroll=False)
+        gr.Interface(fn=self.message_generator, inputs=[],
+                     outputs=[textbox], live=True, allow_flagging=False, submit_btn=gr.Button(visible=False), stop_btn=gr.Button(visible=False), clear_btn=gr.Button(visible=False))
 
     def print(self, new_message, append_to_last=False):
         with self.lock:
@@ -22,7 +22,7 @@ class LiveTextbox():
                 self.messages.append(new_message)
 
     # Generator function for the Gradio interface
-    def message_generator(self):
+    def message_generator(self, _):
         last_yielded = None
         while True:
             with self.lock:

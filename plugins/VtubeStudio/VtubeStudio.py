@@ -102,6 +102,7 @@ class VtubeStudio(VtuberPluginInterface):
 
     def on_close(self, ws, close_status_code, close_msg):
         print("### Connection closed ###")
+        print("Failed to connect to vtube studio, if you want vtube studio functionalities, please start vtube studio and enable plugins.")
 
     def websocket_thread(self):
         self.ws = websocket.WebSocketApp("ws://localhost:8001",
