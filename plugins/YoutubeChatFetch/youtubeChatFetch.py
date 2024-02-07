@@ -29,7 +29,7 @@ class YoutubeChatFetch(InputPluginInterface):
 
     def read_chat_youtube(self, youtube_video_id):
         gr.Info("starting chat fetching...")
-        print("starting chat fetching...")
+        # print("starting chat fetching...")
         chat = None
         try:
             chat = pytchat.create(
@@ -49,16 +49,17 @@ class YoutubeChatFetch(InputPluginInterface):
         while self.read_chat_youtube_thread_running and chat.is_alive():
             for c in chat.get().sync_items():
                 if c.author.name not in self.excluded_users_list:
-                    print(f"{c.datetime} [{c.author.name}]- {c.message}")
+                    # print(f"{c.datetime} [{c.author.name}]- {c.message}")
                     self.liveTextbox.print(
                         f"{c.datetime} [{c.author.name}]- {c.message}")
                     self.process_input(c.message)
-                    time.sleep(1)
+                    time.sleep(0.1)
         print("Chat fetching ended")
+        self.liveTextbox.print("Chat fetching started")
 
     def stop_read_chat_youtube(self):
         gr.Info("stopping chat fetching...")
         print("stopping chat fetching...")
         self.read_chat_youtube_thread_running = False
-        print("Process stopped.")
+        # print("Process stopped.")
         self.liveTextbox.print("Process stopped.")

@@ -65,10 +65,11 @@ class RVCPlugin(TTSPluginInterface):
 
         if (self.use_rvc):
             aud, sr = load_torchaudio(wav_filename)
-            paudio1 = self.model(aud, f0_up_key=self.transpose, output_device='cpu',
+            paudio1 = self.model(aud, f0_up_key=self.transpose,
                                  output_volume=RVC.MATCH_ORIGINAL, index_rate=self.index_rate, protect=self.protect)
 
-            sf.write(self.RVC_OUTPUT_FILENAME, paudio1, 44100)
+            paudio1_cpu = paudio1.cpu().numpy()  # Move to CPU and convert to NumPy
+            sf.write(self.RVC_OUTPUT_FILENAME, paudio1_cpu, 44100)
 
             audio = AudioSegment.from_wav(self.RVC_OUTPUT_FILENAME)
             buffer = io.BytesIO()

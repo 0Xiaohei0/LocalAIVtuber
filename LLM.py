@@ -5,6 +5,7 @@ from pluginInterface import LLMPluginInterface
 import gradio as gr
 from pluginSelectionBase import PluginSelectionBase
 import os
+from liveTextbox import LiveTextbox
 
 
 class LLM(PluginSelectionBase):
@@ -12,6 +13,7 @@ class LLM(PluginSelectionBase):
     input_queue = Queue()
     input_process_thread = None
     system_prompt_text = ""
+    liveTextbox = LiveTextbox()
 
     def __init__(self) -> None:
         super().__init__(LLMPluginInterface)
@@ -46,6 +48,8 @@ class LLM(PluginSelectionBase):
                               ["Do you want to be friend with me?", None, None],
                               ], autofocus=False
                 )
+                with gr.Accordion("Console"):
+                    self.liveTextbox.create_ui()
             super().create_plugin_ui()
 
     def is_generator(self): return inspect.isgeneratorfunction(
@@ -54,20 +58,29 @@ class LLM(PluginSelectionBase):
     def predict_wrapper(self, message, history, system_prompt):
         # print(f"history: {history}")
         # determine if predict function is generator and sends output to other modules
+        self.start_of_response = True
+        self.liveTextbox.print(f"Input: {message}")
         result = self.current_plugin.predict(message, history, system_prompt)
+        self.liveTextbox.print(f"AI: ")
         if self.is_generator():
             processed_idx = 0
             for output in result:
                 self.LLM_output = output
                 if self.is_sentence_end(self.LLM_output):
                     self.send_output(self.LLM_output[processed_idx:])
+                    self.liveTextbox.print(
+                        self.LLM_output[processed_idx:], append_to_last=True)
                     processed_idx = len(self.LLM_output)
                 yield output
             if not processed_idx == len(self.LLM_output):
                 # send any remaining output
                 self.send_output(self.LLM_output[processed_idx:])
+                self.liveTextbox.print(
+                    self.LLM_output[processed_idx:], append_to_last=True)
         else:
             self.LLM_output = result
+            self.send_output(result)
+            self.liveTextbox.print(result, append_to_last=True)
             return result
 
     def load_content(self):
@@ -83,7 +96,6 @@ class LLM(PluginSelectionBase):
         self.system_prompt_text = new_content
 
     def send_output(self, output):
-        print(output)
         for subcriber in self.output_event_listeners:
             subcriber(output)
 

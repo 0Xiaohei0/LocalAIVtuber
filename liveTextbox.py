@@ -4,21 +4,22 @@ import time
 
 
 class LiveTextbox():
-    # Shared list to hold messages
-    messages = []
-
-    # Lock for thread-safe operations on `messages`
-    lock = threading.Lock()
+    def __init__(self) -> None:
+        self.messages = []
+        self.lock = threading.Lock()
 
     def create_ui(self):
         textbox = gr.Textbox(lines=10, max_lines=10,
-                             label="Console log:", show_label=True, interactive=False)
+                             label="Console log:", show_label=True, interactive=False, autoscroll=False)
         gr.Interface(fn=self.message_generator, inputs=None,
                      outputs=[textbox], live=True, allow_flagging=False)
 
-    def print(self, new_message):
+    def print(self, new_message, append_to_last=False):
         with self.lock:
-            self.messages.append(new_message)
+            if append_to_last and self.messages:
+                self.messages[-1] += new_message
+            else:
+                self.messages.append(new_message)
 
     # Generator function for the Gradio interface
     def message_generator(self):
