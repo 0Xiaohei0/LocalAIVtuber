@@ -9,7 +9,7 @@ class Provider():
 
 
 # place holder until config saving is implemented
-temp_default = ["LocalENToJA", "VoiceVox"]
+temp_default = ["NoTranslate", "RVCPlugin"]
 
 
 class PluginSelectionBase():

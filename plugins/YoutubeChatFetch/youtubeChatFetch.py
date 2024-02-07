@@ -4,6 +4,7 @@ import time
 from threading import Thread
 from pluginInterface import InputPluginInterface
 import gradio as gr
+from liveTextbox import LiveTextbox
 
 
 class YoutubeChatFetch(InputPluginInterface):
@@ -11,6 +12,7 @@ class YoutubeChatFetch(InputPluginInterface):
     read_chat_youtube_thread_running = False
 
     excluded_users_list = []
+    liveTextbox = LiveTextbox()
 
     def create_ui(self):
         with gr.Accordion(label="Youtube Chat Fetch", open=False):
@@ -23,6 +25,7 @@ class YoutubeChatFetch(InputPluginInterface):
                 self.start_fetch_button.click(self.read_chat_youtube, inputs=[
                                               self.youtube_video_id_textbox])
                 self.stop_fetch_button.click(self.stop_read_chat_youtube)
+            self.liveTextbox.create_ui()
 
     def read_chat_youtube(self, youtube_video_id):
         gr.Info("starting chat fetching...")
@@ -30,7 +33,7 @@ class YoutubeChatFetch(InputPluginInterface):
         chat = None
         try:
             chat = pytchat.create(
-                video_id=youtube_video_id, interruptable=False)
+                video_id=youtube_video_id, interruptable=False, topchat_only=True)
         except:
             print("failed to fetch chat")
             print(traceback.format_exc())
@@ -42,10 +45,13 @@ class YoutubeChatFetch(InputPluginInterface):
 
     def read_chat_loop(self, chat):
         print("Chat fetching started")
+        self.liveTextbox.print("Chat fetching started")
         while self.read_chat_youtube_thread_running and chat.is_alive():
             for c in chat.get().sync_items():
                 if c.author.name not in self.excluded_users_list:
                     print(f"{c.datetime} [{c.author.name}]- {c.message}")
+                    self.liveTextbox.print(
+                        f"{c.datetime} [{c.author.name}]- {c.message}")
                     self.process_input(c.message)
                     time.sleep(1)
         print("Chat fetching ended")
@@ -55,3 +61,4 @@ class YoutubeChatFetch(InputPluginInterface):
         print("stopping chat fetching...")
         self.read_chat_youtube_thread_running = False
         print("Process stopped.")
+        self.liveTextbox.print("Process stopped.")

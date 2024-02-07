@@ -52,8 +52,7 @@ class LLM(PluginSelectionBase):
         self.current_plugin.predict)
 
     def predict_wrapper(self, message, history, system_prompt):
-        print("into predict_wrapper")
-        print(f"history: {history}")
+        # print(f"history: {history}")
         # determine if predict function is generator and sends output to other modules
         result = self.current_plugin.predict(message, history, system_prompt)
         if self.is_generator():
@@ -89,7 +88,6 @@ class LLM(PluginSelectionBase):
             subcriber(output)
 
     def receive_input(self, text):
-        print("llm recieved input")
         self.input_queue.put(text)
         self.process_input_queue()
 
@@ -112,7 +110,8 @@ class LLM(PluginSelectionBase):
     def generate_response(self):
         while (not self.input_queue.empty()):
             next_input = self.input_queue.get()
-            print(f"next_input: {next_input}")
-            print("before predict_wrapper")
-            self.predict_wrapper(
+            response = self.predict_wrapper(
                 next_input, self.history, self.system_prompt_text)
+            if self.is_generator():
+                for _ in response:
+                    pass  # need to keep iterating the generator
