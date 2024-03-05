@@ -8,9 +8,12 @@ from tqdm import tqdm
 def summarize_bytes(data, max_length=10):
     """Summarize bytes-like data with a maximum length."""
     if len(data) > max_length:
-        return f"{data[:max_length]}... ({len(data)} bytes total)".decode("utf-8", "replace")
+        # Convert the sliced bytes to a string and append the total length
+        data_summary = data[:max_length].decode(
+            "utf-8", "replace") + f"... ({len(data)} bytes total)"
     else:
-        return data.decode("utf-8", "replace")
+        data_summary = data.decode("utf-8", "replace")
+    return data_summary
 
 
 def queue_to_list(q):

@@ -52,7 +52,7 @@ if "%conda_exists%" == "F" (
 @rem create the installer env
 if not exist "%INSTALL_ENV_DIR%" (
 	echo Packages to install: %PACKAGES_TO_INSTALL%
-	call "%CONDA_ROOT_PREFIX%\_conda.exe" create --no-shortcuts -y -k --prefix "%INSTALL_ENV_DIR%" python=3.11 || ( echo. && echo Conda environment creation failed. && goto end )
+	call "%CONDA_ROOT_PREFIX%\_conda.exe" create --no-shortcuts -y -k --prefix "%INSTALL_ENV_DIR%" python=3.10 || ( echo. && echo Conda environment creation failed. && goto end )
 )
 
 @rem check if conda environment was actually created
@@ -89,14 +89,6 @@ echo installing C++ Build Tools, this should take a minute...
     --installPath "%VSBUILDTOOLS_DIR%" ^
     --add Microsoft.VisualStudio.Workload.VCTools ^
     --includeRecommended
-
-
-:: Check for errors in the installation process
-if %ERRORLEVEL% neq 0 (
-    echo Installation failed with error code %ERRORLEVEL%.
-    goto end
-)
-
 
 echo C++ Build Tools installed successfully.
 

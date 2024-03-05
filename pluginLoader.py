@@ -27,14 +27,15 @@ class PluginLoader:
         for root, dirs, _ in os.walk(self.plugin_directory):
             for dir_name in dirs:
                 dir_path = os.path.join(root, dir_name)
-                self._load_plugins_from_directory(dir_path)
 
-             # Check for requirements.txt in the plugin directory
+                # Check for requirements.txt in the plugin directory
                 requirements_path = os.path.join(dir_path, 'requirements.txt')
                 if os.path.exists(requirements_path):
                     print(f"Installing requirements for plugin {dir_name}")
                     subprocess.run(
                         ['pip', 'install', '-r', requirements_path], check=True)
+
+                self._load_plugins_from_directory(dir_path)
 
     def _load_plugins_from_directory(self, directory):
         for file in os.listdir(directory):
