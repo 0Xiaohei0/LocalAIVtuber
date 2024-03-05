@@ -106,5 +106,17 @@ if not exist "%conda_path_bin%" (
 echo Starting main.py...
 python main.py
 
+@rem below are functions for the script   next line skips these during normal execution
+goto end
+
+:PrintBigMessage
+echo. && echo.
+echo *******************************************************************
+for %%M in (%*) do echo * %%~M
+echo *******************************************************************
+echo. && echo.
+pause
+
+
 :end
 pause
