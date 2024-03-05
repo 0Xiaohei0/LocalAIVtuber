@@ -1,11 +1,22 @@
 import inspect
+from queue import Queue
+import threading
 from pluginInterface import LLMPluginInterface
 import gradio as gr
 from pluginSelectionBase import PluginSelectionBase
 import os
+from liveTextbox import LiveTextbox
+import utils
 
 
 class LLM(PluginSelectionBase):
+    history = []
+    input_queue = Queue()
+    input_process_thread = None
+    system_prompt_text = ""
+    liveTextbox = LiveTextbox()
+    process_queue_live_textbox = LiveTextbox()
+
     def __init__(self) -> None:
         super().__init__(LLMPluginInterface)
 
@@ -39,48 +50,86 @@ class LLM(PluginSelectionBase):
                               ["Do you want to be friend with me?", None, None],
                               ], autofocus=False
                 )
+                with gr.Accordion("Console"):
+                    self.liveTextbox.create_ui()
+                    self.process_queue_live_textbox.create_ui(
+                        lines=3, max_lines=3, label="Input waiting to be processed: ")
             super().create_plugin_ui()
 
     def is_generator(self): return inspect.isgeneratorfunction(
         self.current_plugin.predict)
 
     def predict_wrapper(self, message, history, system_prompt):
+        # print(f"history: {history}")
         # determine if predict function is generator and sends output to other modules
+        self.start_of_response = True
+        self.liveTextbox.print(f"Input: {message}")
         result = self.current_plugin.predict(message, history, system_prompt)
+        self.liveTextbox.print(f"AI: ")
         if self.is_generator():
             processed_idx = 0
             for output in result:
                 self.LLM_output = output
                 if self.is_sentence_end(self.LLM_output):
                     self.send_output(self.LLM_output[processed_idx:])
+                    self.liveTextbox.print(
+                        self.LLM_output[processed_idx:], append_to_last=True)
                     processed_idx = len(self.LLM_output)
                 yield output
             if not processed_idx == len(self.LLM_output):
                 # send any remaining output
                 self.send_output(self.LLM_output[processed_idx:])
+                self.liveTextbox.print(
+                    self.LLM_output[processed_idx:], append_to_last=True)
         else:
             self.LLM_output = result
+            self.send_output(result)
+            self.liveTextbox.print(result, append_to_last=True)
             return result
 
     def load_content(self):
         with open(self.context_file_path, 'r', encoding='utf-8') as file:
             content = file.read()
+            self.system_prompt_text = content
             return content
 
     def update_file(self, new_content):
         self.context = new_content
         with open(self.context_file_path, 'w', encoding='utf-8') as file:
             file.write(new_content)
+        self.system_prompt_text = new_content
 
     def send_output(self, output):
-        print(output)
         for subcriber in self.output_event_listeners:
             subcriber(output)
+
+    def receive_input(self, text):
+        self.input_queue.put(text)
+        self.process_input_queue()
 
     def add_output_event_listener(self, function):
         self.output_event_listeners.append(function)
 
-# Check if the last character of the word is a sentence-ending punctuation for the given language
+    # Check if the last character of the word is a sentence-ending punctuation for the given language
     def is_sentence_end(self, word):
         sentence_end_punctuation = {'.', '?', '!', '。', '？', '！'}
         return word[-1] in sentence_end_punctuation
+
+    def process_input_queue(self):
+        # Check if the current thread is alive
+        if self.input_process_thread is None or not self.input_process_thread.is_alive():
+            # Create and start a new thread
+            self.input_process_thread = threading.Thread(
+                target=self.generate_response)
+            self.input_process_thread.start()
+
+    def generate_response(self):
+        while (not self.input_queue.empty()):
+            next_input = self.input_queue.get()
+            response = self.predict_wrapper(
+                next_input, self.history, self.system_prompt_text)
+            if self.is_generator():
+                for _ in response:
+                    pass  # need to keep iterating the generator
+                    self.process_queue_live_textbox.set(
+                        utils.queue_to_list(self.input_queue))

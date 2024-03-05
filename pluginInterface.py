@@ -1,12 +1,16 @@
 class InputPluginInterface:
+    input_event_listeners = []
+
     def init(self):
         pass
 
-    def gather_input(self):
-        raise NotImplementedError
-
     def create_ui(self):
         pass
+
+    # call this function to send your gathered input to next component
+    def process_input(self, input):
+        for listener in self.input_event_listeners:
+            listener(input)
 
 
 class LLMPluginInterface:
@@ -47,3 +51,20 @@ class TTSPluginInterface:
 
     def create_ui(self):
         pass
+
+
+class VtuberPluginInterface:
+    class AvatarData():
+        mouth_open = 0
+        # TODO current emotion, current pheonome etc
+
+    avatar_data = AvatarData()
+
+    def init(self):
+        pass
+
+    def create_ui(self):
+        pass
+
+    def set_avatar_data(self, data):
+        self.avatar_data = data

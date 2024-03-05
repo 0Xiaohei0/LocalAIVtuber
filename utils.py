@@ -5,6 +5,36 @@ import io
 from tqdm import tqdm
 
 
+def summarize_bytes(data, max_length=10):
+    """Summarize bytes-like data with a maximum length."""
+    if len(data) > max_length:
+        # Convert the sliced bytes to a string and append the total length
+        data_summary = data[:max_length].decode(
+            "utf-8", "replace") + f"... ({len(data)} bytes total)"
+    else:
+        data_summary = data.decode("utf-8", "replace")
+    return data_summary
+
+
+def queue_to_list(q):
+    # Convert queue to list without modifying the original queue
+    temp_list = list(q.queue)
+
+    # Start the result list with the queue's length
+    result_list = [str(len(temp_list))]
+
+    # Append each item from the list to the result list
+    for item in temp_list:
+        if isinstance(item, bytes):
+            # Summarize bytes-like data
+            summarized = summarize_bytes(item)
+            result_list.append(summarized)
+        else:
+            result_list.append(str(item))
+
+    return result_list
+
+
 def download_and_extract_zip(url, extract_to='.', folder_name=None):
     """
     Downloads a ZIP file from the given URL, shows a progress bar, and extracts it to the specified directory.

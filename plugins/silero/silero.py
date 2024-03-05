@@ -11,6 +11,7 @@ from pluginInterface import TTSPluginInterface
 class Silero(TTSPluginInterface):
     silero_server_started = False
     SILERO_URL_LOCAL = "127.0.0.1"
+    PORT = "8435"
     current_module_directory = os.path.dirname(__file__)
     session_path = os.path.join(
         current_module_directory, "session")
@@ -26,7 +27,7 @@ class Silero(TTSPluginInterface):
         self.init_session(self.session_path)
 
     def synthesize(self, text):
-        url = f"http://{self.SILERO_URL_LOCAL}:8001/tts/generate"
+        url = f"http://{self.SILERO_URL_LOCAL}:{self.PORT}/tts/generate"
 
         data = {
             "speaker": self.current_speaker,
@@ -67,12 +68,12 @@ class Silero(TTSPluginInterface):
             return
 
         # start silero server
-        command = "python -m silero_api_server"
+        command = f"python -m silero_api_server -p {self.PORT}"
         subprocess.Popen(command, shell=True)
         self.silero_server_started = True
 
     def init_session(self, session_path):
-        url = f"http://{self.SILERO_URL_LOCAL}:8001/tts/session"
+        url = f"http://{self.SILERO_URL_LOCAL}:{self.PORT}/tts/session"
         while True:
             try:
                 data = {
@@ -87,13 +88,13 @@ class Silero(TTSPluginInterface):
         print(response.text)
 
     def get_langauges(self):
-        url = f"http://{self.SILERO_URL_LOCAL}:8001/tts/language"
+        url = f"http://{self.SILERO_URL_LOCAL}:{self.PORT}/tts/language"
         response = requests.request("GET", url)
 
         return response.json()
 
     def get_speakers(self):
-        url = f"http://{self.SILERO_URL_LOCAL}:8001/tts/speakers"
+        url = f"http://{self.SILERO_URL_LOCAL}:{self.PORT}/tts/speakers"
         response = requests.request("GET", url)
         return response.json()
 
@@ -102,7 +103,7 @@ class Silero(TTSPluginInterface):
 
     def on_language_change(self, choice):
         # update speakers dropdown
-        url = f"http://{self.SILERO_URL_LOCAL}:8001/tts/language"
+        url = f"http://{self.SILERO_URL_LOCAL}:{self.PORT}/tts/language"
         data = {
             "id": choice
         }

@@ -1,24 +1,36 @@
+import io
 import os
 from queue import Queue
 import shutil
 import threading
 import zipfile
+import numpy as np
 
 import requests
 from tqdm import tqdm
+from liveTextbox import LiveTextbox
 from pluginInterface import TTSPluginInterface
 import gradio as gr
 from pluginSelectionBase import PluginSelectionBase
 import utils
 from pydub import AudioSegment
 import simpleaudio as sa
+import pyaudio
+from pydub import AudioSegment
+from pydub.utils import audioop
 
 
 class TTS(PluginSelectionBase):
+    output_event_listeners = []
+
     input_queue = Queue()
     audio_data_queue = Queue()
     audio_process_thread = None
     audio_playback_thread = None
+
+    log_live_textbox = LiveTextbox()
+    process_queue_live_textbox = LiveTextbox()
+    playback_queue_live_textbox = LiveTextbox()
 
     def __init__(self) -> None:
         super().__init__(TTSPluginInterface)
@@ -41,10 +53,18 @@ class TTS(PluginSelectionBase):
             )
             gr.Markdown(
                 "Note: Some prividers may only support certain languages.")
+            with gr.Accordion("Console", open=False):
+                self.log_live_textbox.create_ui()
+                self.process_queue_live_textbox.create_ui(
+                    lines=3, max_lines=3, label="Input waiting to be processed: ")
+                self.playback_queue_live_textbox.create_ui(
+                    lines=3, max_lines=3, label="Generated audio waiting to be played: ")
             super().create_plugin_ui()
 
     def wrapper_synthesize(self, text):
-        return self.current_plugin.synthesize(text)
+        result = self.current_plugin.synthesize(text)
+        self.play_sound_from_bytes(result)
+        return result
 
     VOICE_OUTPUT_FILENAME = "synthesized_voice.wav"
 
@@ -56,8 +76,12 @@ class TTS(PluginSelectionBase):
         def generate_audio():
             while (not self.input_queue.empty()):
                 # generate audio data and queue up for playing
-                self.audio_data_queue.put(function(self.input_queue.get()))
+                input = self.input_queue.get()
+                self.audio_data_queue.put(function(input))
                 self.process_audio_queue(self.play_sound_from_bytes)
+                self.process_queue_live_textbox.set(
+                    utils.queue_to_list(self.input_queue))
+                self.log_live_textbox.print(f"Audio synthesized for: {input}")
 
         # Check if the current thread is alive
         if self.audio_process_thread is None or not self.audio_process_thread.is_alive():
@@ -70,6 +94,8 @@ class TTS(PluginSelectionBase):
             while (not self.audio_data_queue.empty()):
                 # generate audio data and queue up for playing
                 function(self.audio_data_queue.get())
+                self.playback_queue_live_textbox.set(
+                    utils.queue_to_list(self.audio_data_queue))
 
         # Check if the current thread is alive
         if self.audio_playback_thread is None or not self.audio_playback_thread.is_alive():
@@ -77,18 +103,64 @@ class TTS(PluginSelectionBase):
             self.audio_playback_thread = threading.Thread(target=play_audio)
             self.audio_playback_thread.start()
 
-    def play_sound_from_bytes(self, audio_data):
-        with open(self.VOICE_OUTPUT_FILENAME, "wb") as file:
-            file.write(audio_data)
-        audio = AudioSegment.from_wav(self.VOICE_OUTPUT_FILENAME)
-        # Convert audio to raw data
-        raw_data = audio.raw_data
-        num_channels = audio.channels
-        bytes_per_sample = audio.sample_width
-        sample_rate = audio.frame_rate
-        play_obj = sa.play_buffer(raw_data, num_channels,
-                                  bytes_per_sample, sample_rate)
-        play_obj.wait_done()
+    def find_max_rms(self, audio_segment, chunk_size=1024):
+        """
+        Find the maximum RMS value in the given audio segment.
+        """
+        max_rms = 0
+        for i in range(0, len(audio_segment.raw_data), chunk_size):
+            chunk_data = audio_segment.raw_data[i:i+chunk_size]
+            rms = audioop.rms(chunk_data, audio_segment.sample_width)
+            if rms > max_rms:
+                max_rms = rms
+        return max_rms
+
+    def play_sound_from_bytes(self, audio_data, chunk_size=1024):
+        """
+        Play audio from bytes and normalize volume in real time, with improved synchronization.
+        """
+        # Open the audio data with PyDub
+        audio = AudioSegment.from_file(
+            io.BytesIO(audio_data), format="wav")
+
+        # Find the maximum RMS value for normalization
+        max_rms = self.find_max_rms(audio, chunk_size)
+
+        p = pyaudio.PyAudio()
+
+        stream = p.open(format=p.get_format_from_width(audio.sample_width),
+                        channels=audio.channels,
+                        rate=audio.frame_rate,
+                        output=True,
+                        frames_per_buffer=chunk_size)
+
+        def process_chunk(i):
+            chunk_data = audio.raw_data[i:i+chunk_size]
+            rms = audioop.rms(chunk_data, audio.sample_width)
+            normalized_volume = rms / max_rms
+            return chunk_data, normalized_volume
+
+        # Initial volume calculation for the first chunk
+        chunk_data, normalized_volume = process_chunk(0)
+        # Process and play audio in chunks
+        for i in range(chunk_size, len(audio.raw_data), chunk_size):
+            # Play the current chunk
+            stream.write(chunk_data)
+
+            # Calculate volume for the next chunk
+            chunk_data, normalized_volume = process_chunk(i)
+            self.send_output(normalized_volume)
+            # print(f"Normalized Volume: {normalized_volume}")
+
+        # Play the last chunk
+        stream.write(chunk_data)
+
+        # Stop and close the stream
+        stream.stop_stream()
+        stream.close()
+
+        # Close PyAudio
+        p.terminate()
 
     def check_ffmpeg(self):
         # https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.7z
@@ -145,3 +217,11 @@ class TTS(PluginSelectionBase):
 
                 # Delete the ZIP file after extraction
                 os.remove(file_name)
+
+    def send_output(self, output):
+        # print(output)
+        for subcriber in self.output_event_listeners:
+            subcriber(output)
+
+    def add_output_event_listener(self, function):
+        self.output_event_listeners.append(function)

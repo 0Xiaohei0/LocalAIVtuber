@@ -1,3 +1,4 @@
+import io
 from utils import download_and_extract_zip
 from .inferrvc import load_torchaudio
 from .inferrvc import RVC
@@ -64,16 +65,17 @@ class RVCPlugin(TTSPluginInterface):
 
         if (self.use_rvc):
             aud, sr = load_torchaudio(wav_filename)
-            paudio1 = self.model(aud, f0_up_key=self.transpose, output_device='cpu',
+            paudio1 = self.model(aud, f0_up_key=self.transpose,
                                  output_volume=RVC.MATCH_ORIGINAL, index_rate=self.index_rate, protect=self.protect)
 
-            sf.write(self.RVC_OUTPUT_FILENAME, paudio1, 44100)
+            paudio1_cpu = paudio1.cpu().numpy()  # Move to CPU and convert to NumPy
+            sf.write(self.RVC_OUTPUT_FILENAME, paudio1_cpu, 44100)
 
             audio = AudioSegment.from_wav(self.RVC_OUTPUT_FILENAME)
-            samples = np.array(audio.get_array_of_samples())
-
-        # Gradio expects (sample_rate, audio_array)
-        return (audio.frame_rate, samples)
+            buffer = io.BytesIO()
+            audio.export(buffer, format='wav')  # Export as WAV format
+            wav_bytes = buffer.getvalue()  # Get the byte value of the audio
+        return wav_bytes
 
     def create_ui(self):
         with gr.Accordion(label="rvc Options", open=False):

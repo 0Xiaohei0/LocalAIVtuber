@@ -9,7 +9,7 @@ class Provider():
 
 
 # place holder until config saving is implemented
-temp_default = ["LocalENToJA", "VoiceVox"]
+temp_default = ["NoTranslate", "RVCPlugin"]
 
 
 class PluginSelectionBase():
@@ -24,12 +24,12 @@ class PluginSelectionBase():
             provider.name = plugin.__class__.__name__
             self.provider_list.append(provider)
 
-        self.default_provider = self.provider_list[0]  # todo load from save
+        self.default_provider = self.provider_list[0] if len(
+            self.provider_list) > 0 else Provider()  # todo load from save
         for provider in self.provider_list:
             if provider.name in temp_default:
                 # todo load from save
                 self.default_provider = provider
-
         self.current_plugin = self.default_provider.plugin
 
         for provider in self.provider_list:
@@ -81,3 +81,6 @@ class PluginSelectionBase():
             if provider.name == name:
                 return provider
         return None
+
+    def get_current_plugin(self):
+        return self.current_plugin
