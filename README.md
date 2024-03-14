@@ -25,10 +25,10 @@ To create a public link, set `share=True` in `launch()`.
 
 
 ## TODO (This project is still under development and more features are planned)
-- Fetch chat input from streaming platforms
-- Improve local LLM
+- Fetch chat input from streaming platforms (Finished)
+- Improve local LLM (In prorgress, working on finetuning)
 - Write plugins for cloud providers(Azure tts, elevenlabs, chatgpt, whisper...)
 - GPU support
-- Vtube studio integration
+- Vtube studio integration (Finished)
 - Let AI play games and provide commentary.
 - AI singing
