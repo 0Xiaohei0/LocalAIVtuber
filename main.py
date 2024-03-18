@@ -6,6 +6,10 @@ from TTS import TTS
 from VTuber import Vtuber
 from Translate import Translate
 
+import logging
+
+logging.basicConfig(level=logging.WARNING)
+
 # allow relative imports in plugins folder
 import sys
 sys.path.append('F:\programs\Python\VtuberChess\plugins')
