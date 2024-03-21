@@ -9,7 +9,7 @@ class Provider():
 
 
 # place holder until config saving is implemented
-temp_default = ["NoTranslate", "voicevox", "VoiceInput"]
+temp_default = ["NoTranslate", "voicevox", "VoiceInput","RanaLLM"]
 
 
 class PluginSelectionBase():
