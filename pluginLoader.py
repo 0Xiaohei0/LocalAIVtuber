@@ -4,7 +4,7 @@ import subprocess
 from pluginInterface import *
 
 plugin_directory = "plugins"
-
+temp_ignore = ["silero", "rvc", "Local_LLM"]
 
 class PluginLoader:
     def __init__(self, plugin_directory):
@@ -27,6 +27,12 @@ class PluginLoader:
         for root, dirs, _ in os.walk(self.plugin_directory):
             for dir_name in dirs:
                 dir_path = os.path.join(root, dir_name)
+                
+                #print(f"dir_name: {dir_name}")
+                #print(f"temp_ignore: {temp_ignore}")
+                if dir_name in temp_ignore: 
+                    print(f"ignoring {dir_name}")
+                    continue
 
                 # Check for requirements.txt in the plugin directory
                 requirements_path = os.path.join(dir_path, 'requirements.txt')
