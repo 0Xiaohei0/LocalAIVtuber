@@ -65,7 +65,7 @@ class Translate(PluginSelectionBase):
             self.input_process_thread.start()
 
     def send_output(self, output):
-        print(output)
+        print(f"translation output:{output}")
         for subcriber in self.output_event_listeners:
             subcriber(output)
 

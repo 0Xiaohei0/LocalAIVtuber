@@ -20,8 +20,8 @@ class LocalENToJA(TranslationPluginInterface):
         seg_en = pysbd.Segmenter(language="en", clean=False)
         segmented_text = seg_en.segment(text)
         data = self.generate(segmented_text, self.model, self.tokenizer)
-        print(data)
-        concatenated_text = ''.join(data)
+        print(f"LocalENToJA output:{data}")
+        concatenated_text = '。'.join(data)
         processed_output = self.preprocess_input(concatenated_text)
         return processed_output
 

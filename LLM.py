@@ -113,7 +113,9 @@ class LLM(PluginSelectionBase):
     # Check if the last character of the word is a sentence-ending punctuation for the given language
     def is_sentence_end(self, word):
         sentence_end_punctuation = {'.', '?', '!', '。', '？', '！'}
-        return word[-1] in sentence_end_punctuation
+        if len(word) > 0:
+            return word[-1] in sentence_end_punctuation
+        else: return True
 
     def process_input_queue(self):
         # Check if the current thread is alive

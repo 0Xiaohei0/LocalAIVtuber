@@ -69,7 +69,19 @@ class TTS(PluginSelectionBase):
     VOICE_OUTPUT_FILENAME = "synthesized_voice.wav"
 
     def receive_input(self, text):
-        self.input_queue.put(text)
+        if isinstance(text, list):
+            # Check if every item in the list is a string
+            if all(isinstance(item, str) for item in text):
+                for item in text:
+                    self.input_queue.put(item+"。")
+            else:
+                return "The list must contain only strings."
+            # Check if the input is a string
+        elif isinstance(text, str):
+            self.input_queue.put(text)
+        else:
+            return "Input must be a string or a list of strings."
+        #self.input_queue.put(text)
         self.process_input_queue(self.current_plugin.synthesize)
 
     def process_input_queue(self, function):
