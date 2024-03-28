@@ -49,7 +49,8 @@ class TTS(PluginSelectionBase):
                           "全身ポカポカで気持ちええわぁ～、浮いとるみたい。",
                           "Ah... *yawns* Good morning. The morning air is the freshest. Come on, take a few extra breaths — it'll make you smarter~",
                           "Have you ever kept goldfish as pets? They're very cute.",
-                          "Ah, this is great! I feel so relaxed all over, I could almost float away."]
+                          "Ah, this is great! I feel so relaxed all over, I could almost float away.",
+                          "hello"]
             )
             gr.Markdown(
                 "Note: Some prividers may only support certain languages.")
@@ -69,7 +70,21 @@ class TTS(PluginSelectionBase):
     VOICE_OUTPUT_FILENAME = "synthesized_voice.wav"
 
     def receive_input(self, text):
-        self.input_queue.put(text)
+        if isinstance(text, list):
+            # Check if every item in the list is a string
+            if all(isinstance(item, str) for item in text):
+                for item in text:
+                    self.input_queue.put(item+"。")
+            else:
+                print("TTS: The list must contain only strings.")
+                return
+            # Check if the input is a string
+        elif isinstance(text, str):
+            if text == "":
+                print("TTS: ignoring empty input")
+                return
+            self.input_queue.put(text)
+        #self.input_queue.put(text)
         self.process_input_queue(self.current_plugin.synthesize)
 
     def process_input_queue(self, function):

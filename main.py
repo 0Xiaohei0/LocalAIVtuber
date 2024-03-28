@@ -1,3 +1,4 @@
+import os
 import gradio as gr
 from pluginLoader import plugin_loader
 from Input import Input
@@ -6,9 +7,15 @@ from TTS import TTS
 from VTuber import Vtuber
 from Translate import Translate
 
+import logging
+
+logging.basicConfig(level=logging.WARNING)
+
 # allow relative imports in plugins folder
 import sys
-sys.path.append('F:\programs\Python\VtuberChess\plugins')
+current_module_directory = os.path.dirname(__file__)
+plugin_directory = os.path.join(current_module_directory, "plugins")
+sys.path.append(plugin_directory)
 
 # load plugins
 plugin_loader.load_plugins()
