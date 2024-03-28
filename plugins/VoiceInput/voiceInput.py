@@ -24,8 +24,9 @@ class VoiceInput(InputPluginInterface):
         self.ambience_adjusted = False
 
         self.model = whisper.load_model("base")
+        self.liveTextbox.print(f"whisper_model.device: {self.model.device}")
         self.whisper_filter_list = [
-            'you', 'thank you.', 'thanks for watching.', "Thank you for watching."]
+            'you', 'thank you.', 'thanks for watching.', "Thank you for watching.", "1.5%"]
 
     def create_ui(self):
         with gr.Accordion("Voice Input"):

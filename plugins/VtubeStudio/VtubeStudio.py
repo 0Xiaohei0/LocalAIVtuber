@@ -114,7 +114,7 @@ class VtubeStudio(VtuberPluginInterface):
 
     def mouth_data_thread(self):
         while True:
-            print(f"Setting MouthOpen to {self.avatar_data.mouth_open}")
+            #print(f"Setting MouthOpen to {self.avatar_data.mouth_open}")
             message = {
                 "apiName": "VTubeStudioPublicAPI",
                 "apiVersion": "1.0",

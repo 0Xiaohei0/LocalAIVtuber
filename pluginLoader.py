@@ -4,11 +4,12 @@ import subprocess
 from pluginInterface import *
 
 plugin_directory = "plugins"
-temp_ignore = ["silero", "rvc", "Local_LLM"]
+temp_ignore = [] #["silero", "Local_LLM", "voicevox"]
 
 class PluginLoader:
     def __init__(self, plugin_directory):
-        self.plugin_directory = plugin_directory
+        self.current_module_directory = os.path.dirname(__file__)
+        self.plugin_directory = os.path.join(self.current_module_directory,plugin_directory) 
         self.interface_to_category = {
             InputPluginInterface: 'input_gathering',
             LLMPluginInterface: 'language_model',
@@ -24,24 +25,25 @@ class PluginLoader:
         self._load_plugins_from_directory(self.plugin_directory)
 
         # Next, load plugins from subdirectories
-        for root, dirs, _ in os.walk(self.plugin_directory):
-            for dir_name in dirs:
-                dir_path = os.path.join(root, dir_name)
-                
-                #print(f"dir_name: {dir_name}")
+        for item_name in os.listdir(self.plugin_directory):
+            item_path = os.path.join(self.plugin_directory, item_name)
+            
+            # Check if the item is a directory
+            if os.path.isdir(item_path):
+                print(f"checking: {item_path}")
                 #print(f"temp_ignore: {temp_ignore}")
-                if dir_name in temp_ignore: 
-                    print(f"ignoring {dir_name}")
+                if item_name in temp_ignore: 
+                    print(f"ignoring {item_path}")
                     continue
 
                 # Check for requirements.txt in the plugin directory
-                requirements_path = os.path.join(dir_path, 'requirements.txt')
+                requirements_path = os.path.join(item_path, 'requirements.txt')
                 if os.path.exists(requirements_path):
-                    print(f"Installing requirements for plugin {dir_name}")
+                    print(f"Installing requirements for plugin {item_path}")
                     subprocess.run(
                         ['pip', 'install', '-r', requirements_path], check=True)
 
-                self._load_plugins_from_directory(dir_path)
+                self._load_plugins_from_directory(item_path)
 
     def _load_plugins_from_directory(self, directory):
         for file in os.listdir(directory):

@@ -9,15 +9,13 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 class RanaLLM(LLMPluginInterface):
     context_length = 2048
     def init(self):
-        self.tokenizer = AutoTokenizer.from_pretrained("xiaoheiqaq/Rana")
-        self.model = AutoModelForCausalLM.from_pretrained("xiaoheiqaq/Rana", torch_dtype=torch.float16)
-
         # Check if CUDA is available and set the device accordingly
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        print(f"torch.cuda.is_available() {torch.cuda.is_available()}")
 
-        # Move the model to the selected device
-        self.model.to(self.device)
-
+        self.tokenizer = AutoTokenizer.from_pretrained("xiaoheiqaq/Rana")
+        print(f"Loading Rana...")
+        self.model = AutoModelForCausalLM.from_pretrained("xiaoheiqaq/Rana", torch_dtype=torch.float16).to(self.device)
         # Set the model to evaluation mode
         self.model.eval()
 
@@ -34,7 +32,7 @@ class RanaLLM(LLMPluginInterface):
         # Move the encoded input to the same device as the model
         input_ids = input_ids.to(self.device)
         # Generate a response, adjusting parameters as needed
-        output = self.model.generate(input_ids, max_length=50, num_return_sequences=1)
+        output = self.model.generate(input_ids,  max_new_tokens=50, num_return_sequences=1)
         # Decode the generated response
         decoded_output = self.tokenizer.decode(output[0], skip_special_tokens=True)
 
