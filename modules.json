@@ -2,12 +2,12 @@
   "Local_EN_to_JA": true,
   "Local_LLM": true,
   "No_Translate": true,
-  "Rana_LLM": true,
+  "Rana_LLM": false,
   "rvc": true,
-  "silero": true,
-  "TwitchChatFetch": true,
+  "silero": false,
+  "TwitchChatFetch": false,
   "VoiceInput": true,
   "voicevox": true,
   "VtubeStudio": true,
-  "YoutubeChatFetch": true
+  "YoutubeChatFetch": false
 }
