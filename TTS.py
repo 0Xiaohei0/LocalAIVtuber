@@ -186,7 +186,7 @@ class TTS(PluginSelectionBase):
             file_name = "ffmpeg-release-essentials.zip"
 
             # URL to download the ZIP file
-            url = "https://www.gyan.dev/ffmpeg/builds/packages/ffmpeg-6.1.1-essentials_build.7z"
+            url = "https://www.gyan.dev/ffmpeg/builds/packages/ffmpeg-6.1.1-essentials_build.zip"
 
             # Download the ZIP file with progress
             print(f"Downloading {file_name} from {url}...")
