@@ -186,7 +186,7 @@ class TTS(PluginSelectionBase):
             file_name = "ffmpeg-release-essentials.zip"
 
             # URL to download the ZIP file
-            url = "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip"
+            url = "https://www.gyan.dev/ffmpeg/builds/packages/ffmpeg-6.1.1-essentials_build.7z"
 
             # Download the ZIP file with progress
             print(f"Downloading {file_name} from {url}...")
@@ -219,9 +219,9 @@ class TTS(PluginSelectionBase):
                 current_module_directory = os.path.dirname(__file__)
                 # Path to the ffmpeg.exe inside the extracted folder
                 ffmpeg_exe_path = os.path.join(
-                    'ffmpeg-6.1.1-essentials_build', 'bin', 'ffmpeg.exe')
+                    current_module_directory, 'ffmpeg-6.1.1-essentials_build', 'bin', 'ffmpeg.exe')
                 ffprobe_exe_path = os.path.join(
-                    'ffmpeg-6.1.1-essentials_build', 'bin', 'ffprobe.exe')
+                    current_module_directory, 'ffmpeg-6.1.1-essentials_build', 'bin', 'ffprobe.exe')
 
                 # Move ffmpeg.exe to the base directory
                 shutil.move(ffmpeg_exe_path, current_module_directory)
