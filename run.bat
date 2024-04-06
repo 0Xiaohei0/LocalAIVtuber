@@ -95,7 +95,7 @@ echo C++ Build Tools installed successfully.
 :SkipCPPInstallation
 echo Installing dependencies...
 CALL pip install -r requirements.txt
-CALL pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+CALL pip3 install torch torchaudio
 
 :: Workaround for llama-cpp-python loading paths in CUDA env vars even if they do not exist
 set "conda_path_bin=%INSTALL_ENV_DIR%\bin"
