@@ -15,7 +15,7 @@ class RanaLLM(LLMPluginInterface):
 
         self.tokenizer = AutoTokenizer.from_pretrained("xiaoheiqaq/Rana")
         print(f"Loading Rana...")
-        self.model = AutoModelForCausalLM.from_pretrained("xiaoheiqaq/Rana", torch_dtype=torch.float16).to(self.device)
+        self.model = AutoModelForCausalLM.from_pretrained("xiaoheiqaq/Rana").to(self.device)
         # Set the model to evaluation mode
         self.model.eval()
 
