@@ -26,7 +26,7 @@ class RVCPlugin(TTSPluginInterface):
     rvc_index_dir = os.path.join(current_module_directory, "rvc_index_dir")
 
     edge_tts_voice = "en-US-AnaNeural"
-    rvc_model_name = 'GawrGura_Sing.pth'
+    rvc_model_name = 'qiqi.pth'
     use_rvc = True
     transpose = 0
     index_rate = .75
@@ -42,9 +42,9 @@ class RVCPlugin(TTSPluginInterface):
         # If the output audio tensor should block until fully loaded, this can be ignored. But if you want to run in a larger torch pipeline, setting to False will improve performance a little.
         os.environ['RVC_RETURNBLOCKING'] = 'True'
 
-        if not os.path.exists(os.path.join(self.current_module_directory, "rvc_model_dir", "GawrGura_Sing.pth")):
+        if not os.path.exists(os.path.join(self.current_module_directory, "rvc_model_dir", self.rvc_model_name)):
             self.download_model_from_url(
-                "https://huggingface.co/rayzox57/GawrGura_RVC/resolve/main/GawrGura_Sing_v2_400e.zip")
+                "https://huggingface.co/zAnonymousWizard/genshinqiqi/resolve/main/qiqigenshin.zip?download=true")
 
         self.model = RVC(self.rvc_model_name)
         self.update_rvc_model_list()
@@ -103,7 +103,7 @@ class RVCPlugin(TTSPluginInterface):
                 self.use_rvc_checkbox = gr.Checkbox(
                     label='Use RVC', value=self.use_rvc)
                 self.rvc_model_dropdown = gr.Dropdown(label="RVC models:",
-                                                      choices=self.rvc_model_names, value=self.rvc_model_names[0] if len(self.rvc_model_names) > 0 else None, interactive=True)
+                                                      choices=self.rvc_model_names, value=self.rvc_model_name if len(self.rvc_model_names) > 0 else None, interactive=True)
                 self.refresh_button = gr.Button("Refresh", variant="primary")
 
             with gr.Row():
