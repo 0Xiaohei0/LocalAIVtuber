@@ -1,14 +1,14 @@
 {
-  "Local_EN_to_JA": true,
-  "Local_LLM": true,
-  "No_Translate": true,
-  "Rana_LLM": false,
-  "rvc": true,
-  "silero": true,
-  "TwitchChatFetch": true,
-  "VoiceInput": true,
-  "VoiceInputFastWhisper": true,
-  "voicevox": true,
-  "VtubeStudio": true,
-  "YoutubeChatFetch": true
+    "Local_EN_to_JA": true,
+    "Local_LLM": false,
+    "No_Translate": true,
+    "Rana_LLM": false,
+    "Rana_LLM_gguf": true,
+    "rvc": true,
+    "silero": false,
+    "TwitchChatFetch": false,
+    "VoiceInput": true,
+    "voicevox": true,
+    "VtubeStudio": true,
+    "YoutubeChatFetch": true
 }
