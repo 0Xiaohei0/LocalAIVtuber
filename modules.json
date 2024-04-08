@@ -1,9 +1,10 @@
 {
+    "Aya_LLM_GGUF": true,
     "Local_EN_to_JA": true,
     "Local_LLM": false,
     "No_Translate": true,
     "Rana_LLM": false,
-    "Rana_LLM_gguf": true,
+    "Rana_LLM_gguf": false,
     "rvc": true,
     "silero": false,
     "TwitchChatFetch": false,
