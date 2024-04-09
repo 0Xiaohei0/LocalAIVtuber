@@ -17,3 +17,4 @@ plugins/VtubeStudio/token.txt
 *.pth
 *.index
 !vs_BuildTools.exe
+installer_files

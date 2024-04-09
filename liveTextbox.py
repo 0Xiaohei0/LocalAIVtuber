@@ -21,7 +21,7 @@ class LiveTextbox():
             else:
                 self.messages.append(new_message)
 
-    def set(self, new_message):
+    def set(self, new_message:str):
         with self.lock:
             self.messages = new_message
 

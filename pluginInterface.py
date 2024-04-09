@@ -8,7 +8,7 @@ class InputPluginInterface:
         pass
 
     # call this function to send your gathered input to next component
-    def process_input(self, input):
+    def process_input(self, input: str):
         for listener in self.input_event_listeners:
             listener(input)
 

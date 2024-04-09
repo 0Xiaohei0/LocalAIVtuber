@@ -1,6 +1,7 @@
 {
     "Aya_LLM_GGUF": true,
-    "Local_EN_to_JA": true,
+    "Chess": true,
+    "Local_EN_to_JA": false,
     "Local_LLM": false,
     "No_Translate": true,
     "Rana_LLM": false,
@@ -8,8 +9,8 @@
     "rvc": true,
     "silero": false,
     "TwitchChatFetch": false,
-    "VoiceInput": true,
-    "voicevox": true,
+    "VoiceInput": false,
+    "voicevox": false,
     "VtubeStudio": true,
-    "YoutubeChatFetch": true
+    "YoutubeChatFetch": false
 }
