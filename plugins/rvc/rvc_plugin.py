@@ -67,7 +67,7 @@ class RVCPlugin(TTSPluginInterface):
         if self.use_rvc:
             start_time = time.time()
             aud, sr = load_torchaudio(wav_filename)
-            print(f"load_torchaudio: {time.time() - start_time:.5f} seconds")
+            #print(f"load_torchaudio: {time.time() - start_time:.5f} seconds")
 
             start_time = time.time()
             paudio1 = self.model(aud, f0_up_key=self.transpose,
@@ -76,18 +76,18 @@ class RVCPlugin(TTSPluginInterface):
 
             start_time = time.time()
             paudio1_cpu = paudio1.cpu().numpy()  # Move to CPU and convert to NumPy
-            print(f"cpu and numpy conversion: {time.time() - start_time:.5f} seconds")
+            #print(f"cpu and numpy conversion: {time.time() - start_time:.5f} seconds")
 
             start_time = time.time()
             sf.write(self.RVC_OUTPUT_FILENAME, paudio1_cpu, 44100)
-            print(f"write audio: {time.time() - start_time:.5f} seconds")
+            #print(f"write audio: {time.time() - start_time:.5f} seconds")
 
             start_time = time.time()
             audio = AudioSegment.from_wav(self.RVC_OUTPUT_FILENAME)
             buffer = io.BytesIO()
             audio.export(buffer, format='wav')  # Export as WAV format
             wav_bytes = buffer.getvalue()  # Get the byte value of the audio
-            print(f"audio segment processing and export: {time.time() - start_time:.5f} seconds")
+            #print(f"audio segment processing and export: {time.time() - start_time:.5f} seconds")
         return wav_bytes
 
     def create_ui(self):
