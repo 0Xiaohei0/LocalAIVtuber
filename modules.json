@@ -8,6 +8,7 @@
     "Rana_LLM_gguf": false,
     "rvc": true,
     "silero": false,
+    "OtherLLM": true,
     "TwitchChatFetch": false,
     "VoiceInput": true,
     "voicevox": false,
