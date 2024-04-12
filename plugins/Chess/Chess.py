@@ -23,7 +23,7 @@ class Chess(InputPluginInterface):
     processed_index = 0
     
     request_sent = False
-    GREETING_PROMPT_TEMPLATE = "Your opponent has entered the game, greet your opponent. You are playing [side]. [first] goes first."
+    GREETING_PROMPT_TEMPLATE = "Your opponent has entered the game, greet your opponent. You are playing [side]."
     update_interval = 0.5
     
     class States(Enum):
@@ -40,15 +40,19 @@ class Chess(InputPluginInterface):
         with gr.Accordion(label="Chess", open=False):
             with gr.Row():
                 self.start_button = gr.Button("Start")
-                self.get_engine_log_button = gr.Button("get engine log")
-                self.make_move_button = gr.Button("make move")
+                self.start_opponent_button = gr.Button("Start Opponent")
+                self.start_challenge_button = gr.Button("Start Challenge")
+                #self.get_engine_log_button = gr.Button("get engine log")
+                #self.make_move_button = gr.Button("make move")
                 
             self.console_textbox.create_ui()
             self.game_state_textbox.create_ui()
 
         self.start_button.click(self.start_game)
-        self.get_engine_log_button.click(self.get_engine_log)
-        self.make_move_button.click(self.make_move)
+        self.start_opponent_button.click(self.start_opponent)
+        self.start_challenge_button.click(self.start_challenge)
+        #self.get_engine_log_button.click(self.get_engine_log)
+        #self.make_move_button.click(self.make_move)
 
     def get_engine_log(self): 
         try:
@@ -88,6 +92,26 @@ class Chess(InputPluginInterface):
         except requests.exceptions.RequestException as e:
             print(f"Error calling the endpoint: {e}")
 
+    def start_opponent(self): 
+        try:
+            response = requests.post(f"{self.CHESS_SERVER_URL}/start_opponent")
+            if response.status_code == 200:
+                self.console_textbox.print("Opponent bot Started")
+            else:
+                print(f"Failed to call the endpoint. Status code: {response.status_code}")
+        except requests.exceptions.RequestException as e:
+            print(f"Error calling the endpoint: {e}")
+
+    def start_challenge(self): 
+        try:
+            response = requests.post(f"{self.CHESS_SERVER_URL}/start_challenge")
+            if response.status_code == 200:
+                self.console_textbox.print("Challenge Started")
+            else:
+                print(f"Failed to call the endpoint. Status code: {response.status_code}")
+        except requests.exceptions.RequestException as e:
+            print(f"Error calling the endpoint: {e}")
+
         
             
     def fetch_update_periodic(self):
@@ -119,6 +143,7 @@ class Chess(InputPluginInterface):
                                 .replace("[first]", "You" if self.game_state['side'] == "white" else "Opponent"))
                 
         elif self.get_current_state() == self.States.GREET:
+            self.make_move()
             # start playing after greeting finish
             if (global_state.get_value(GlobalKeys.IS_IDLE) == True):
                 self.set_current_state(self.States.THINK if self.is_my_turn() else self.States.WAIT)
@@ -129,17 +154,20 @@ class Chess(InputPluginInterface):
                 self.request_sent = True
                 self.console_textbox.print(f"Getting chess module output")
                 self.get_engine_log()
+                self.console_textbox.print(f"Making move")
+                self.make_move()
                 self.set_current_state(self.States.PLAY)
 
         elif self.get_current_state() == self.States.PLAY:
             if(self.is_idle()):
-                self.console_textbox.print(f"Making move")
-                self.make_move()
                 self.set_current_state(self.States.WAIT)
         
         elif self.get_current_state() == self.States.WAIT:
             if self.is_my_turn():
                 self.set_current_state(self.States.THINK)
+
+        if (not self.get_current_state() == self.States.IDLE) and not self.game_state['joined']:
+            self.set_current_state(self.States.IDLE)
 
     def is_idle(self) -> bool:
         return global_state.get_value(GlobalKeys.IS_IDLE) == True    
@@ -214,9 +242,10 @@ class Chess(InputPluginInterface):
         # Format the prompt
         # prompt = f"""Given the following position in a chess game {moves_played}, the chess engine recommends the move sequence {final_pv}. The evaluation score is {final_score_cp}, indicating {score_description}. Can you explain the strategic motive behind these recommended moves and any significant implications they have on the game's outcome?"""
         # prompt = f"""Given the following position in a chess game {moves_played}, I make the move {best_move}. Aya's analysis shows the evaluation score is {final_score_cp}, indicating {score_description}. State where Aya is moving what piece."""
-        prompt = f"""Given the following position in a chess game {moves_played}, make the move {best_move}. Analysis shows the evaluation score is {final_score_cp}, indicating {score_description}. State the move , and describe the situation in a few words."""
-        
-        print(prompt)
+        # prompt = f"""Given the following position in a chess game {moves_played}, The best move is {best_move}. Analysis shows the evaluation score is {final_score_cp}, indicating {score_description}. Given this data, state the move, and breifly talk about the situation In the perspective of Aya."""
+        # prompt = f"""Given the following position in a chess game {moves_played}, The best move is {best_move}. Analysis shows the evaluation score is {final_score_cp}, indicating {score_description}. As Aya, playing {self.game_state['side']}, state your next move, assuming you have analyzed the position and found the best move on your own."""
+        # prompt = f"""Given the best move is {best_move}. Describe your next move, assuming you have analyzed the position and found the best move on your own."""
+        prompt = f"""Analysis shows the evaluation score is {final_score_cp}, indicating {score_description}. As Aya, playing {self.game_state['side']}, talk about the state of the game."""
         self.processed_index = len(self.engine_log)
         self.process_input(prompt)
         self.request_sent = False

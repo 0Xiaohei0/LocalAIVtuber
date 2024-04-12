@@ -49,7 +49,7 @@ class AyaLLM(LLMPluginInterface):
                 return
 
         # Initialize the model
-        self.llm = Llama(model_path=model_path, chat_format="chatml", n_ctx=self.context_length)
+        self.llm = Llama(model_path=model_path, chat_format="chatml", n_ctx=self.context_length, n_gpu_layers=30)
 
 
     def predict(self, message, history, system_prompt):

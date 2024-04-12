@@ -9,8 +9,8 @@
     "rvc": true,
     "silero": false,
     "TwitchChatFetch": false,
-    "VoiceInput": false,
+    "VoiceInput": true,
     "voicevox": false,
     "VtubeStudio": true,
-    "YoutubeChatFetch": false
+    "YoutubeChatFetch": true
 }
