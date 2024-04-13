@@ -21,6 +21,7 @@ class LLM(PluginSelectionBase):
         super().__init__(LLMPluginInterface)
 
         self.output_event_listeners = []
+        self.full_output_event_listeners = []
         self.context_file_path = "Context.txt"
         self.LLM_output = ""
         # Check if the file exists. If not, create an empty file.
@@ -86,6 +87,7 @@ class LLM(PluginSelectionBase):
             self.send_output(result)
             self.liveTextbox.print(result, append_to_last=True)
             return result
+        self.send_full_output(self.LLM_output)
 
     def load_content(self):
         with open(self.context_file_path, 'r', encoding='utf-8') as file:
@@ -102,13 +104,20 @@ class LLM(PluginSelectionBase):
     def send_output(self, output):
         for subcriber in self.output_event_listeners:
             subcriber(output)
+    
+    def send_full_output(self, output):
+        for subcriber in self.full_output_event_listeners:
+            subcriber(output)
 
     def receive_input(self, text):
         self.input_queue.put(text)
         self.process_input_queue()
 
-    def add_output_event_listener(self, function):
-        self.output_event_listeners.append(function)
+    def add_output_event_listener(self, function, full_response = False):
+        if full_response:
+            self.full_output_event_listeners.append(function)
+        else:
+            self.output_event_listeners.append(function)
 
     # Check if the last character of the word is a sentence-ending punctuation for the given language
     def is_sentence_end(self, word):

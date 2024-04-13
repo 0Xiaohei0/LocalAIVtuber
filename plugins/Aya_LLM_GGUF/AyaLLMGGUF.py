@@ -8,7 +8,7 @@ import os
 
 class AyaLLM(LLMPluginInterface):
     context_length = 4096
-
+    temperature = 0.8
     def init(self):
         # Directory where the module is located
         current_module_directory = os.path.dirname(__file__)
@@ -51,6 +51,15 @@ class AyaLLM(LLMPluginInterface):
         # Initialize the model
         self.llm = Llama(model_path=model_path, chat_format="chatml", n_ctx=self.context_length, n_gpu_layers=30)
 
+    def create_ui(self):
+        with gr.Accordion("Aya LLM settings", open=False):
+            with gr.Row():
+                self.temperature_slider = gr.Slider(minimum=0, maximum=1, value=self.temperature,label="temperature")
+                
+                self.temperature_slider.change(fn=self.update_temperature,inputs=self.temperature_slider)
+
+    def update_temperature(self, t):
+        self.temperature = t
 
     def predict(self, message, history, system_prompt):
         messages = [
@@ -79,9 +88,10 @@ class AyaLLM(LLMPluginInterface):
         print(f"history: {history}")
         print(f"messages: {messages}")
         print(f"---------------------------------")
+        print(f"Generating with temperature {self.temperature}")
 
         completion_chunks = self.llm.create_chat_completion(
-            messages, stream=True, temperature=0.6)
+            messages, stream=True, temperature=self.temperature)
         output = ""
         for completion_chunk in completion_chunks:
             try:
