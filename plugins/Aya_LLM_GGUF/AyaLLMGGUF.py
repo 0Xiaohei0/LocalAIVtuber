@@ -49,7 +49,7 @@ class AyaLLM(LLMPluginInterface):
                 return
 
         # Initialize the model
-        self.llm = Llama(model_path=model_path, chat_format="chatml", n_ctx=self.context_length, n_gpu_layers=30)
+        self.llm = Llama(model_path=model_path, chat_format="chatml", n_ctx=self.context_length, n_gpu_layers=-1)
 
     def create_ui(self):
         with gr.Accordion("Aya LLM settings", open=False):

@@ -25,7 +25,7 @@ class OtherLLM(InputPluginInterface):
 
     def create_ui(self):
         with gr.Blocks() as ui:
-            with gr.Accordion("OtherLLM Connection"):
+            with gr.Accordion("OtherLLM Connection",open=False):
                 with gr.Row():
                     self.connect_button = gr.Button("Connect")
                 with gr.Row():

@@ -29,7 +29,7 @@ class VoiceInput(InputPluginInterface):
             'you', 'thank you.', 'thanks for watching.', "Thank you for watching.", "1.5%"]
 
     def create_ui(self):
-        with gr.Accordion("Voice Input"):
+        with gr.Accordion("Voice Input",open=False):
             with gr.Row():
                 self.start_listening_button = gr.Button(
                     "start Listening", self.start_listening)
