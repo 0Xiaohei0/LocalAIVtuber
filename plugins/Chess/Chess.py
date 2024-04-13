@@ -259,7 +259,12 @@ class Chess(InputPluginInterface):
         # prompt = f"""Given the following position in a chess game {moves_played}, The best move is {best_move}. Analysis shows the evaluation score is {final_score_cp}, indicating {score_description}. Given this data, state the move, and breifly talk about the situation In the perspective of Aya."""
         # prompt = f"""Given the following position in a chess game {moves_played}, The best move is {best_move}. Analysis shows the evaluation score is {final_score_cp}, indicating {score_description}. As Aya, playing {self.game_state['side']}, state your next move, assuming you have analyzed the position and found the best move on your own."""
         # prompt = f"""Given the best move is {best_move}. Describe your next move, assuming you have analyzed the position and found the best move on your own."""
-        prompt = f"""Analysis shows the evaluation score is {final_score_cp}, indicating {score_description}. As Aya, playing {self.game_state['side']}, state if you or your opponent has the advantage."""
+        print(f"str(self.game_state['winrate']) {str(self.game_state['winrate'])}")
+        winrate_string = str(self.game_state['winrate'])
+        winrate_string = winrate_string.replace(".", " point ")
+        print(f"winrate_string {winrate_string}")
+
+        prompt = f"""Analysis shows the evaluation score is {final_score_cp}, indicating {score_description}, your winrate for this game is {winrate_string}%. You are playing {self.game_state['side']}. State your winrate. State if you or your opponent has the advantage."""
         self.processed_index = len(self.engine_log)
         self.process_input(prompt)
         self.request_sent = False
