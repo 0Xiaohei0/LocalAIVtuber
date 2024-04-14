@@ -142,6 +142,7 @@ class TTS(PluginSelectionBase):
         """
         Play audio from bytes and normalize volume in real time, with improved synchronization.
         """
+        if(audio_data == None): return
         # Open the audio data with PyDub
         audio = AudioSegment.from_file(
             io.BytesIO(audio_data), format="wav")

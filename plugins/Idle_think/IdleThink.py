@@ -15,7 +15,7 @@ class IdleThink(InputPluginInterface):
     
     console_textbox = LiveTextbox()
     idle_elapsed_time = 0
-    idle_dialog_trigger_time = 8
+    idle_dialog_trigger_time = 20
 
     def init(self):
         self.monitor_thread = threading.Thread(target=self.monitor_value)

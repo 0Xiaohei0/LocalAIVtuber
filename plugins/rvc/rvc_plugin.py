@@ -41,7 +41,7 @@ class RVCPlugin(TTSPluginInterface):
         # the audio output frequency, default is 44100.
         os.environ['RVC_OUTPUTFREQ'] = '44100'
         # If the output audio tensor should block until fully loaded, this can be ignored. But if you want to run in a larger torch pipeline, setting to False will improve performance a little.
-        os.environ['RVC_RETURNBLOCKING'] = 'True'
+        os.environ['RVC_RETURNBLOCKING'] = 'False'
 
         if not os.path.exists(os.path.join(self.current_module_directory, "rvc_model_dir", self.rvc_model_name)):
             self.download_model_from_url(
@@ -54,22 +54,27 @@ class RVCPlugin(TTSPluginInterface):
 
         text = self.preprocess_text(text)
         print(f'Outputting audio to {self.EDGE_TTS_OUTPUT_FILENAME}')
-        communicate = edge_tts.Communicate(text, self.edge_tts_voice)
-        asyncio.run(communicate.save(self.EDGE_TTS_OUTPUT_FILENAME))
+        try:
+            communicate = edge_tts.Communicate(text, self.edge_tts_voice)
+            asyncio.run(communicate.save(self.EDGE_TTS_OUTPUT_FILENAME))
+            
+            # Load the MP3 file
+            audio = AudioSegment.from_mp3(self.EDGE_TTS_OUTPUT_FILENAME)
 
-        # Load the MP3 file
-        audio = AudioSegment.from_mp3(self.EDGE_TTS_OUTPUT_FILENAME)
+            # Convert it to WAV format
+            wav_filename = self.EDGE_TTS_OUTPUT_FILENAME.replace('.mp3', '.wav')
+            audio.export(wav_filename, format='wav')
+            audio = AudioSegment.from_wav(wav_filename)
+            samples = np.array(audio.get_array_of_samples())
+        except Exception as e:
+            print(f"Error converting text {text} to audio: {e}")
+            return None
 
-        # Convert it to WAV format
-        wav_filename = self.EDGE_TTS_OUTPUT_FILENAME.replace('.mp3', '.wav')
-        audio.export(wav_filename, format='wav')
-        audio = AudioSegment.from_wav(wav_filename)
-        samples = np.array(audio.get_array_of_samples())
 
         if self.use_rvc:
             start_time = time.time()
             aud, sr = load_torchaudio(wav_filename)
-            #print(f"load_torchaudio: {time.time() - start_time:.5f} seconds")
+            print(f"load_torchaudio: {time.time() - start_time:.5f} seconds")
 
             start_time = time.time()
             paudio1 = self.model(aud, f0_up_key=self.transpose,

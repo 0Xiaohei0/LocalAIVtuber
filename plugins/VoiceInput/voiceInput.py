@@ -20,7 +20,7 @@ class VoiceInput(InputPluginInterface):
         # self.transcriber = pipeline("automatic-speech-recognition", model="openai/whisper-base.en")
         self.mic_mode = 'open mic'
         self.recording = False
-        self.input_language = None
+        self.input_language = "english"
         self.ambience_adjusted = False
 
         self.model = whisper.load_model("base")
@@ -38,7 +38,7 @@ class VoiceInput(InputPluginInterface):
             with gr.Row():
                 language_list = list(LANGUAGES.values())
                 language_list.insert(0, 'auto')
-                self.language_dropdown = gr.Dropdown(language_list, value='auto', label="Input languages")
+                self.language_dropdown = gr.Dropdown(language_list, value=self.input_language, label="Input languages")
             with gr.Accordion("Console"):
                 self.liveTextbox.create_ui()
 
