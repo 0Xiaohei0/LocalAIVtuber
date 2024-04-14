@@ -1,4 +1,5 @@
 import io
+import re
 from utils import download_and_extract_zip
 from .inferrvc import load_torchaudio
 from .inferrvc import RVC
@@ -51,6 +52,7 @@ class RVCPlugin(TTSPluginInterface):
 
     def synthesize(self, text):
 
+        text = self.preprocess_text(text)
         print(f'Outputting audio to {self.EDGE_TTS_OUTPUT_FILENAME}')
         communicate = edge_tts.Communicate(text, self.edge_tts_voice)
         asyncio.run(communicate.save(self.EDGE_TTS_OUTPUT_FILENAME))
@@ -209,3 +211,18 @@ class RVCPlugin(TTSPluginInterface):
                 print(f"No .index file found for {base_name}")
         else:
             print("No .pth file found in the folder.")
+    def preprocess_text(self, text):
+        print(f"replacing decimal point with the word point.")
+        print(f"original:) {text}")
+
+        pattern = r'\b\d*\.\d+\b'
+
+        def replace_match(match):
+            decimal_number = match.group(0)
+            return decimal_number.replace('.', ' point ')
+
+        # Replace all occurrences of decimal patterns in the text
+        replaced_text = re.sub(pattern, replace_match, text)
+        print(f"replaced_text: {replaced_text}")
+        
+        return replaced_text

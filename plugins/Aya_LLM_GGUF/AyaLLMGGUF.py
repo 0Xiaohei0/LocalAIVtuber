@@ -8,7 +8,7 @@ import os
 
 class AyaLLM(LLMPluginInterface):
     context_length = 4096
-    temperature = 0.8
+    temperature = 0.9
     def init(self):
         # Directory where the module is located
         current_module_directory = os.path.dirname(__file__)

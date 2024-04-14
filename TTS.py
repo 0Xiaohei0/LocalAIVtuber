@@ -32,6 +32,7 @@ class TTS(PluginSelectionBase):
     process_queue_live_textbox = LiveTextbox()
     playback_queue_live_textbox = LiveTextbox()
 
+    subtitle_file_path = "subtitle.txt"
     def __init__(self) -> None:
         super().__init__(TTSPluginInterface)
         self.check_ffmpeg()
@@ -64,6 +65,7 @@ class TTS(PluginSelectionBase):
 
     def wrapper_synthesize(self, text):
         result = self.current_plugin.synthesize(text)
+        self.update_subtitle_file(text)
         self.play_sound_from_bytes(result)
         return result
 
@@ -92,7 +94,7 @@ class TTS(PluginSelectionBase):
             while (not self.input_queue.empty()):
                 # generate audio data and queue up for playing
                 input = self.input_queue.get()
-                self.audio_data_queue.put(function(input))
+                self.audio_data_queue.put([function(input), input])
                 self.process_audio_queue(self.play_sound_from_bytes)
                 self.process_queue_live_textbox.set(
                     utils.queue_to_list(self.input_queue))
@@ -104,11 +106,17 @@ class TTS(PluginSelectionBase):
             self.audio_process_thread = threading.Thread(target=generate_audio)
             self.audio_process_thread.start()
 
+    def update_subtitle_file(self, text):
+        with open(self.subtitle_file_path, 'w', encoding='utf-8') as file:
+            file.write(text)
+
     def process_audio_queue(self, function):
         def play_audio():
             while (not self.audio_data_queue.empty()):
                 # generate audio data and queue up for playing
-                function(self.audio_data_queue.get())
+                audio_data_pair = self.audio_data_queue.get()
+                self.update_subtitle_file(audio_data_pair[1])
+                function(audio_data_pair[0])
                 self.playback_queue_live_textbox.set(
                     utils.queue_to_list(self.audio_data_queue))
 

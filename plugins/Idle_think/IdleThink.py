@@ -51,4 +51,4 @@ class IdleThink(InputPluginInterface):
     def trigger_function(self):
         print(f"Idle for {self.idle_dialog_trigger_time}, sending idle dialogue")
         self.console_textbox.print(f"Idle for {self.idle_dialog_trigger_time}, sending idle dialogue")
-        self.process_input("Describe a random thought you have.")
+        self.process_input("Describe a random thought you have. Do not repeat previous thoughts.")
