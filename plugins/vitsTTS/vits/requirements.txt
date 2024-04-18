@@ -1,0 +1,17 @@
+Cython==0.29.21
+librosa==0.8.0
+matplotlib
+numpy
+scipy
+unidecode==1.3.4
+jamo==0.4.1
+pypinyin==0.44.0
+jieba==0.42.1
+protobuf==3.19.0
+cn2an==0.5.17
+inflect==6.0.0
+eng_to_ipa==0.0.2
+ko_pron==1.3
+indic_transliteration==2.3.37
+num_thai==0.0.5
+opencc==1.1.1
