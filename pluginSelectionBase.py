@@ -10,7 +10,7 @@ class Provider():
 
 # place holder until config saving is implemented
 #temp_default = ["Local_EN_to_JA", "voicevox", "VoiceInput","RanaLLM"]no_translate
-temp_default = ["NoTranslate", "rvc", "VoiceInput","RanaLLM"]
+temp_default = ["LocalENToJA", "VitsTTS", "VoiceInput","AyaLLM"]
 
 class PluginSelectionBase():
     def __init__(self, plugin_type) -> None:
