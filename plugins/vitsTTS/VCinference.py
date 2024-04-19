@@ -1,59 +1,60 @@
-import os
-import numpy as np
-import torch
-from torch import no_grad, LongTensor
-import argparse
-
-from vits.commons import * 
-from vits.utils import *
-from vits.mel_processing import spectrogram_torch
-from vits.models import SynthesizerTrn
-import gradio as gr
-import librosa
-import webbrowser
-
-from vits.text import text_to_sequence, _clean_text
-device = "cuda:0" if torch.cuda.is_available() else "cpu"
-import logging
-logging.getLogger("PIL").setLevel(logging.WARNING)
-logging.getLogger("urllib3").setLevel(logging.WARNING)
-logging.getLogger("markdown_it").setLevel(logging.WARNING)
-logging.getLogger("httpx").setLevel(logging.WARNING)
-logging.getLogger("asyncio").setLevel(logging.WARNING)
-
-language_marks = {
-    "Japanese": "",
-    "日本語": "[JA]",
-    "简体中文": "[ZH]",
-    "English": "[EN]",
-    "Mix": "",
-}
-lang = ['日本語', '简体中文', 'English', 'Mix']
-def get_text(text, hps, is_symbol):
-    text_norm = text_to_sequence(text, hps.symbols, [] if is_symbol else hps.data.text_cleaners)
-    if hps.data.add_blank:
-        text_norm = intersperse(text_norm, 0)
-    text_norm = LongTensor(text_norm)
-    return text_norm
-
-def create_tts_fn(model, hps, speaker_ids):
-    def tts_fn(text, speaker, language, speed):
-        if language is not None:
-            text = language_marks[language] + text + language_marks[language]
-        speaker_id = speaker_ids[speaker]
-        stn_tst = get_text(text, hps, False)
-        with no_grad():
-            x_tst = stn_tst.unsqueeze(0).to(device)
-            x_tst_lengths = LongTensor([stn_tst.size(0)]).to(device)
-            sid = LongTensor([speaker_id]).to(device)
-            audio = model.infer(x_tst, x_tst_lengths, sid=sid, noise_scale=.667, noise_scale_w=0.8,
-                                length_scale=1.0 / speed)[0][0, 0].data.cpu().float().numpy()
-        del stn_tst, x_tst, x_tst_lengths, sid
-        return "Success", (hps.data.sampling_rate, audio)
-
-    return tts_fn
-
 if __name__ == "__main__":
+    import os
+    import numpy as np
+    import torch
+    from torch import no_grad, LongTensor
+    import argparse
+
+    from vits.commons import * 
+    from vits.utils import *
+    from vits.mel_processing import spectrogram_torch
+    from vits.models import SynthesizerTrn
+    import gradio as gr
+    import librosa
+    import webbrowser
+
+    from vits.text import text_to_sequence, _clean_text
+    device = "cuda:0" if torch.cuda.is_available() else "cpu"
+    import logging
+    logging.getLogger("PIL").setLevel(logging.WARNING)
+    logging.getLogger("urllib3").setLevel(logging.WARNING)
+    logging.getLogger("markdown_it").setLevel(logging.WARNING)
+    logging.getLogger("httpx").setLevel(logging.WARNING)
+    logging.getLogger("asyncio").setLevel(logging.WARNING)
+
+    language_marks = {
+        "Japanese": "",
+        "日本語": "[JA]",
+        "简体中文": "[ZH]",
+        "English": "[EN]",
+        "Mix": "",
+    }
+    lang = ['日本語', '简体中文', 'English', 'Mix']
+    def get_text(text, hps, is_symbol):
+        text_norm = text_to_sequence(text, hps.symbols, [] if is_symbol else hps.data.text_cleaners)
+        if hps.data.add_blank:
+            text_norm = intersperse(text_norm, 0)
+        text_norm = LongTensor(text_norm)
+        return text_norm
+
+    def create_tts_fn(model, hps, speaker_ids):
+        def tts_fn(text, speaker, language, speed):
+            if language is not None:
+                text = language_marks[language] + text + language_marks[language]
+            speaker_id = speaker_ids[speaker]
+            stn_tst = get_text(text, hps, False)
+            with no_grad():
+                x_tst = stn_tst.unsqueeze(0).to(device)
+                x_tst_lengths = LongTensor([stn_tst.size(0)]).to(device)
+                sid = LongTensor([speaker_id]).to(device)
+                audio = model.infer(x_tst, x_tst_lengths, sid=sid, noise_scale=.667, noise_scale_w=0.8,
+                                    length_scale=1.0 / speed)[0][0, 0].data.cpu().float().numpy()
+            del stn_tst, x_tst, x_tst_lengths, sid
+            return "Success", (hps.data.sampling_rate, audio)
+
+        return tts_fn
+
+
     current_module_directory = os.path.dirname(__file__)
     model_dir = os.path.join(current_module_directory, "models")
     output_dir = os.path.join(current_module_directory, "output.wav")

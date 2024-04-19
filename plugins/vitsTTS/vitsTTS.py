@@ -11,20 +11,20 @@ import torch
 from torch import no_grad, LongTensor
 import argparse
 
-from vits.commons import * 
-from vits.utils import *
-from vits.mel_processing import spectrogram_torch
-from vits.models import SynthesizerTrn
+from .vits.commons import * 
+from .vits.utils import *
+from .vits.mel_processing import spectrogram_torch
+from .vits.models import SynthesizerTrn
 import gradio as gr
 import librosa
 import soundfile as sf
 
-from vits.text import text_to_sequence, _clean_text
+from .vits.text import text_to_sequence, _clean_text
 
 current_module_directory = os.path.dirname(__file__)
 model_dir = os.path.join(current_module_directory, "models")
 output_dir = os.path.join(current_module_directory, "output.wav")
-config_dir = os.path.join(model_dir, "xiangling-english_config.json")
+config_dir = os.path.join(model_dir, "xiangling.json")
 model = os.path.join(model_dir, "xiangling.pth")
 device = "cuda:0" if torch.cuda.is_available() else "cpu"
 language_marks = {
@@ -64,7 +64,7 @@ class VitsTTS(TTSPluginInterface):
             audio_buffer.seek(0)  # Go to the start of the buffer
             wav_bytes = audio_buffer.read()  # Read the WAV file bytes
             
-        return (sampling_rate, audio)
+        return wav_bytes
 
 
     def create_ui(self):
