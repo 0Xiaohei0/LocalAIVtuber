@@ -1,23 +1,25 @@
-import wave
-
-import numpy as np
-import pyaudio
-
-from .TTService import TTService
-import os
-current_module_directory = os.path.dirname(__file__)
-
-model_dir = os.path.join(current_module_directory, "models")
-output_dir = os.path.join(current_module_directory, "output.wav")
-config_combo = [
-        ( os.path.join(model_dir, "chisato.json"), os.path.join(model_dir, "chisato.pth")),
-    ]
-
 if __name__ == "__main__":
+    import wave
+
+    import numpy as np
+    import pyaudio
+
+    from TTService import TTService
+    import os
+    current_module_directory = os.path.dirname(__file__)
+
+    model_dir = os.path.join(current_module_directory, "models")
+    output_dir = os.path.join(current_module_directory, "output.wav")
+    config_combo = [
+            #( os.path.join(model_dir, "chisato.json"), os.path.join(model_dir, "chisato.pth")),
+            ( os.path.join(model_dir, "xiangling-english_config.json"), os.path.join(model_dir, "D_xiangling.pth")),
+        ]
+
+
     for cfg, model in config_combo:
         a = TTService(cfg, model, 'test', 1)
         p = pyaudio.PyAudio()
-        audio = a.read('[JA]今日はいい天気ですね。2007年の日経BPによる当時の管理者へのインタビュー記事によれば、ウィキペディア日本語版は2001年5月頃に発足したものの、当初は編集者も少数で、ローマ字表記の項目が約23項目とコンテンツもほとんどなく、認知もほとんどされていなかったが[1]、2002年夏のシステムの更新によって日本語表記にも対応するようになり[1]、徐々に日本人のユーザーも増大していった、と述べられている。[JA]')
+        audio = a.read('[EN]Ah, this is great! I feel so relaxed all over, I could almost float away.[EN]')
         # audio = a.read('[ZH]今天天气真好！[ZH]')
         stream = p.open(format=pyaudio.paFloat32,
                         channels=1,

@@ -1,7 +1,6 @@
 import numpy as np
 import torch
-import os, sys; sys.path.append(os.path.dirname(os.path.realpath(__file__)))
-from core import maximum_path_c
+from .monotonic_align.core import maximum_path_c
 
 
 def maximum_path(neg_cent, mask):

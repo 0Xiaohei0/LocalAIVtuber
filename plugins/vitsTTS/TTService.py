@@ -7,12 +7,12 @@ import os
 os.environ["PYTORCH_JIT"] = "0"
 import torch
 
-from vits.commons import *
-from vits.utils import *
+from .vits.commons import *
+from .vits.utils import *
 
-from vits.models import SynthesizerTrn
-from vits.text.symbols import symbols
-from vits.text import text_to_sequence
+from .vits.models import SynthesizerTrn
+from .vits.text.symbols import symbols
+from .vits.text import text_to_sequence
 
 import logging
 logging.getLogger().setLevel(logging.INFO)
