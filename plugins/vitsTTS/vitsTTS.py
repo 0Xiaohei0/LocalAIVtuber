@@ -24,8 +24,8 @@ from .vits.text import text_to_sequence, _clean_text
 current_module_directory = os.path.dirname(__file__)
 model_dir = os.path.join(current_module_directory, "models")
 output_dir = os.path.join(current_module_directory, "output.wav")
-config_dir = os.path.join(model_dir, "xiangling.json")
-model = os.path.join(model_dir, "xiangling.pth")
+config_dir = os.path.join(model_dir, "trilingual.json")
+model = os.path.join(model_dir, "trilingual.pth")
 device = "cuda:0" if torch.cuda.is_available() else "cpu"
 language_marks = {
     "Japanese": "",
@@ -54,8 +54,13 @@ class VitsTTS(TTSPluginInterface):
         self.speakers = list(hps.speakers.keys())
         self.tts_fn = self.create_tts_fn(net_g, hps, speaker_ids)
 
+        self.character = self.speakers[0]
+        self.language = lang[2]
+        self.duration = 1
+
     def synthesize(self, text):
-        text_output, (sampling_rate, audio) = self.tts_fn(text, self.char_dropdown.value,self.language_dropdown.value,self.duration_slider.value)
+        print(f"self.tts_fn({text}, {self.character}, {self.language}, {self.duration})")
+        text_output, (sampling_rate, audio) = self.tts_fn(text, self.character, self.language, self.duration)
         sf.write(output_dir, audio, samplerate=sampling_rate, format='WAV')
     
         # Save the audio to a BytesIO stream as a WAV file to return bytes
@@ -70,22 +75,25 @@ class VitsTTS(TTSPluginInterface):
     def create_ui(self):
         with gr.Accordion(label="Vits Options", open=False):
             with gr.Row():
-                with gr.Column():
-                    self.textbox = gr.TextArea(label="Text",
-                                          placeholder="Type your sentence here",
-                                          value="Hello.", elem_id=f"tts-input")
-                    # select character
-                    self.char_dropdown = gr.Dropdown(choices=self.speakers, value=self.speakers[0], label='character')
-                    self.language_dropdown = gr.Dropdown(choices=lang, value=lang[2], label='language')
-                    self.duration_slider = gr.Slider(minimum=0.1, maximum=5, value=1, step=0.1,
-                                                label='速度 Speed')
-                with gr.Column():
-                    self.text_output = gr.Textbox(label="Message")
-                    self.audio_output = gr.Audio(label="Output Audio", elem_id="tts-audio")
-                    btn = gr.Button("Generate!")
-                    btn.click(self.tts_fn,
-                              inputs=[self.textbox, self.char_dropdown, self.language_dropdown, self.duration_slider,],
-                              outputs=[self.text_output, self.audio_output])
+                # select character
+                self.char_dropdown = gr.Dropdown(choices=self.speakers, value=self.character, label='character')
+                self.language_dropdown = gr.Dropdown(choices=lang, value=self.language, label='language')
+                self.duration_slider = gr.Slider(minimum=0.1, maximum=5, value=self.duration, step=0.1,
+                                            label='速度 Speed')
+                
+        self.char_dropdown.change(self.update_character, inputs=[self.char_dropdown])
+        self.language_dropdown.change(self.update_language, inputs=[self.language_dropdown])
+        self.duration_slider.change(self.update_duration, inputs=[self.duration_slider])
+                   
+        
+    def update_character(self, input):
+        self.character = input
+    
+    def update_language(self, input):
+        self.language = input
+    
+    def update_duration(self, input):
+        self.duration = input
     
 
     def get_text(self, text, hps, is_symbol):
