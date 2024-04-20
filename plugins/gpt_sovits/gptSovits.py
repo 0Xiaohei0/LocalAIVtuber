@@ -1,27 +1,57 @@
 import requests
 import os
+import gradio as gr
+from pluginInterface import TTSPluginInterface
+import subprocess
 
-current_module_directory = os.path.dirname(__file__)
-output_dir = os.path.join(current_module_directory, "output.wav")
 
-# Endpoint URL
-url = "http://127.0.0.1:9880"
 
-# Parameters for the GET request
-params = {
-    'text': 'English is a West Germanic language in the Indo-European language family, whose speakers, called Anglophones, originated in early medieval England.[4][5][6] The namesake of the language is the Angles, one of the ancient Germanic peoples that migrated to the island of Great Britain.',
-    'text_language': 'en'
-}
+class gptSovits(TTSPluginInterface):
+    current_module_directory = os.path.dirname(__file__)
+    output_dir = os.path.join(current_module_directory, "output.wav")
+    server_dir = os.path.join(current_module_directory, "GPT_SoVITS")
+    lang = ["zh","en","ja"]
+    url = "http://127.0.0.1:9880"
 
-# Sending the GET request
-response = requests.get(url, params=params)
+    def init(self):
+        self.language = self.lang[1]
+        command = [
+        "python", "api.py",
+        "-s", r"./SoVITS_weights/nene60_test_e8_s280.pth",
+        "-g", r"./GPT_weights/nene60-test-e20.ckpt",
+        "-dr", r"./sample.mp3",
+        "-dt", "ふーん、新作対戦ゲーム設置しました、か",
+        "-dl", "ja"
+        ]
+        print(f"process = subprocess.Popen({command}, cwd={self.server_dir}, shell=True)")
+        process = subprocess.Popen(command, cwd=self.server_dir, shell=True)
+        print(f"GPT-Sovits Server started with PID {process.pid}")
 
-# Check if the request was successful
-if response.status_code == 200:
+    def synthesize(self, text):
+        params = {
+            'text': text,
+            'text_language': self.language
+        }
+        response = requests.get(self.url, params=params)
 
-    # Open a binary file in write mode and write the contents of the response
-    with open(output_dir, 'wb') as file:
-        file.write(response.content)
-    print("Audio file downloaded successfully:", output_dir)
-else:
-    print("Failed to download audio file. Status Code:", response.status_code)
+        if response.status_code == 200:
+            with open(self.output_dir, 'wb') as file:
+                file.write(response.content)
+            print("Audio file downloaded successfully:", self.output_dir)
+        else:
+            print("Failed to download audio file. Status Code:", response.status_code)
+            
+        return response.content
+
+
+    def create_ui(self):
+        with gr.Accordion(label="gpt-sovits Options", open=False):
+            with gr.Row():
+                self.language_dropdown = gr.Dropdown(choices=self.lang, value=self.language, label='language')
+                
+        self.language_dropdown.change(self.update_language, inputs=[self.language_dropdown])
+    
+    def update_language(self, input):
+        self.language = input
+    
+    
