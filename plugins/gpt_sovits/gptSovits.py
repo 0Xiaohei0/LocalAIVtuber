@@ -17,12 +17,30 @@ class gptSovits(TTSPluginInterface):
         self.language = self.lang[1]
         command = [
         "python", "api.py",
-        "-s", r"./SoVITS_weights/nene60_test_e8_s280.pth",
-        "-g", r"./GPT_weights/nene60-test-e20.ckpt",
-        "-dr", r"./sample.mp3",
+        "-s", r"./SoVITS_weights/kokomi2_e15_s2295.pth",
+        "-g", r"./GPT_weights/kokomi2-e10.ckpt",
+        "-dr", r"./ふーん、新作対戦ゲーム設置しました、か.mp3",
         "-dt", "ふーん、新作対戦ゲーム設置しました、か",
         "-dl", "ja"
         ]
+
+        # command = [
+        # "python", "api.py",
+        # "-s", r"./SoVITS_weights/kokomi2_e15_s2295.pth",
+        # "-g", r"./GPT_weights/kokomi2-e10.ckpt",
+        # "-dr", r"./vo_card_kokomi_freetalk_01.wav",
+        # "-dt", "The situation is ever-changing in a card game. To emerge victorious, you have to be willing to take some risks.",
+        # "-dl", "en"
+        # ]
+
+        # command = [
+        # "python", "api.py",
+        # "-s", r"./SoVITS_weights/nene60_test_e8_s280.pth",
+        # "-g", r"./GPT_weights/nene60-test-e20.ckpt",
+        # "-dr", r"./sample.mp3",
+        # "-dt", "ふーん、新作対戦ゲーム設置しました、か",
+        # "-dl", "ja"
+        # ]
         print(f"process = subprocess.Popen({command}, cwd={self.server_dir}, shell=True)")
         process = subprocess.Popen(command, cwd=self.server_dir, shell=True)
         print(f"GPT-Sovits Server started with PID {process.pid}")
