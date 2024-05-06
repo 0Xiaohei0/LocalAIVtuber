@@ -2,9 +2,11 @@
 
 - Chatbot, Translation and Text-to-Speech, all completely free and running locally.
 - Support voice output in Japanese, English, German, Spanish, French, Russian and more, powered by RVC, silero and voicevox.
+- Includes custom finetuned model to avoid generic chatbot responses and breaking character.
 - Gradio UI web interface.
 - plugin support for easily adding other providers.
-
+  
+early test stream (https://www.youtube.com/live/9LK_-pqz8Ts?si=yUd-Wz6xV6wXt-t7)
 <table>
   <tr>
     <td><img src="https://github.com/0Xiaohei0/VtuberChess/assets/24196833/6433bc1f-cdec-423f-b190-b7330497d28e" /></td>
@@ -26,9 +28,9 @@ To create a public link, set `share=True` in `launch()`.
 
 ## TODO (This project is still under development and more features are planned)
 - Fetch chat input from streaming platforms (Finished)
-- Improve local LLM (In prorgress, working on finetuning)
+- Improve local LLM (Finetuned model avaliable https://huggingface.co/xiaoheiqaq/Aya-7b-gguf)
 - Write plugins for cloud providers(Azure tts, elevenlabs, chatgpt, whisper...)
 - GPU support
 - Vtube studio integration (Finished)
-- Let AI play games and provide commentary.
+- Let AI play games and provide commentary. (can play chess through lichess)
 - AI singing
