@@ -34,3 +34,16 @@ To create a public link, set `share=True` in `launch()`.
 - Vtube studio integration (Finished)
 - Let AI play games and provide commentary. (can play chess through lichess)
 - AI singing
+
+
+
+## FAQ:
+- To fetch chat from Youtube, copy the youtube_video_id from the stream url like this:
+  
+ ![image](https://github.com/0Xiaohei0/LocalAIVtuber/assets/24196833/942b9811-46bc-40f9-a7df-7938d0070513)
+
+Then press start fetching chat
+
+![image](https://github.com/0Xiaohei0/LocalAIVtuber/assets/24196833/96b8a971-00e8-4930-a9b4-897b3ddf27bf)
+
+
