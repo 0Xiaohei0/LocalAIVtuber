@@ -1,4 +1,5 @@
 import os
+import threading
 import gradio as gr
 from pluginLoader import plugin_loader
 from Input import Input
@@ -6,6 +7,7 @@ from LLM import LLM
 from TTS import TTS
 from VTuber import Vtuber
 from Translate import Translate
+from globals import global_state, GlobalKeys
 
 import logging
 
@@ -39,4 +41,24 @@ with gr.Blocks() as main_interface:
     translate.add_output_event_listener(tts.receive_input)
     tts.add_output_event_listener(vtuber.receive_input)
 
+global_update_loop = None
+
+def update_globals():
+    global global_update_loop
+    try:
+        update_globals_periodic()
+    except KeyboardInterrupt:
+        print("Stopping...")
+        if global_update_loop: global_update_loop.cancel()
+
+def update_globals_periodic():
+    global_state.set_value(GlobalKeys.IS_IDLE, llm.input_queue.empty() and translate.input_queue.empty() and tts.input_queue.empty() and tts.audio_data_queue.empty())
+    #print(f"global_state.get_value(GlobalKeys.IS_IDLE) {global_state.get_value(GlobalKeys.IS_IDLE)}")
+    global global_update_loop
+    global_update_loop = threading.Timer(0.5, update_globals_periodic).start()
+
+update_globals()
 main_interface.queue().launch()
+
+
+

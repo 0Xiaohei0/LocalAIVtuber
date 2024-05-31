@@ -136,8 +136,11 @@ class Config:
 
     #I don't think this is used for inference but we will see.
     def device_config(self) -> tuple:
+        print(f"device_config called")
         if torch.cuda.is_available():
+            print(f"torch.cuda.is_available()")
             if self.has_xpu():
+                print(f"self.has_xpu()")
                 self.device = self.instead = "xpu:0"
                 self.is_half = True
             i_device = int(self.device.split(":")[-1])
@@ -251,4 +254,5 @@ class Config:
                 except:
                     pass
         logger.info("Selecting device:%s, is_half:%s" % (self.device,self.is_half))
+        print("Selecting device:%s, is_half:%s" % (self.device,self.is_half))
         return x_pad, x_query, x_center, x_max
