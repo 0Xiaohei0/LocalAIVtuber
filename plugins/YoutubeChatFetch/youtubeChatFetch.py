@@ -28,13 +28,15 @@ class YoutubeChatFetch(InputPluginInterface):
                     label="youtube_video_id", show_label=True)
                 self.start_fetch_button = gr.Button("Start Fetching Chat")
                 self.stop_fetch_button = gr.Button("Stop Fetching Chat")
-                self.prompt_format_textbox = gr.Textbox(label= "Prompt format")
 
                 self.start_fetch_button.click(self.read_chat_youtube, inputs=[
                                               self.youtube_video_id_textbox])
                 self.stop_fetch_button.click(self.stop_read_chat_youtube)
 
+            with gr.Row():
+                self.prompt_format_textbox = gr.Textbox(label= "Prompt format", value=self.prompt_format)
                 self.prompt_format_textbox.change(fn=self.update_prompt, inputs=self.prompt_format_textbox)
+
             self.liveTextbox.create_ui()
             self.console_textbox.create_ui()
             self.queue_textbox.create_ui()
@@ -42,6 +44,7 @@ class YoutubeChatFetch(InputPluginInterface):
 
     def update_prompt(self, text):
         self.prompt_format = text
+
     def read_chat_youtube(self, youtube_video_id):
         gr.Info("starting chat fetching...")
         # print("starting chat fetching...")

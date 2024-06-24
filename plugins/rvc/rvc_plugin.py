@@ -175,47 +175,55 @@ class RVCPlugin(TTSPluginInterface):
         for name in os.listdir(self.rvc_model_dir):
             if name.endswith(".pth"):
                 self.rvc_model_names.append(name)
-
+                    
+    def find_file_in_nested_folders(self, folder_path, suffix='.pth'):
+        # Traverse the directory tree
+        for root, dirs, files in os.walk(folder_path):
+            for file in files:
+                if file.endswith(suffix):
+                    base_name = os.path.splitext(file)[0]
+                    pth_file_path = os.path.join(root, file)
+                    return base_name, pth_file_path
+        return None, None
+    
     def download_model_from_url(self, url):
         folder_path = download_and_extract_zip(
             url, extract_to=self.current_module_directory)
 
         # Find the .pth file and get its base name
-        for file in os.listdir(folder_path):
-            if file.endswith('.pth'):
-                base_name = os.path.splitext(file)[0]
-                pth_file_path = os.path.join(folder_path, file)
-                break
+        pth_base_name, pth_file_path = self.find_file_in_nested_folders(folder_path)
+        index_base_name, index_file_path = self.find_file_in_nested_folders(folder_path, suffix='.index')
 
-        if pth_file_path and base_name:
-            # Look for the corresponding .index file
-            for file in os.listdir(folder_path):
-                if file.endswith('.index'):
-                    original_index_file_path = os.path.join(folder_path, file)
-                    new_index_file_path = os.path.join(
-                        folder_path, base_name + '.index')
-                    os.rename(original_index_file_path, new_index_file_path)
-
-                    # Move the .pth file
-                    shutil.move(pth_file_path, os.path.join(
-                        self.rvc_model_dir, os.path.basename(pth_file_path)))
-
-                    # Move the .index file
-                    shutil.move(new_index_file_path, os.path.join(
-                        self.rvc_index_dir, os.path.basename(new_index_file_path)))
-
-                    # Remove the folder once done
-                    try:
-                        # Use this if the folder is expected to be empty
-                        os.rmdir(folder_path)
-                    except OSError:
-                        # Use this if the folder might contain other files
-                        shutil.rmtree(folder_path)
-                    break
-            else:
-                print(f"No .index file found for {base_name}")
-        else:
+        if (not pth_file_path):
             print("No .pth file found in the folder.")
+        if (not index_file_path):
+            print(f"No .index file found for {pth_base_name}")
+
+        original_index_file_path = index_file_path
+        new_index_file_path = os.path.join(
+            folder_path, pth_base_name + '.index')
+        
+        print(f"original_index_file_path { original_index_file_path}")
+        print(f"new_index_file_path { new_index_file_path}")
+        os.rename(original_index_file_path, new_index_file_path)
+
+        # Move the .pth file
+        shutil.move(pth_file_path, os.path.join(
+            self.rvc_model_dir, os.path.basename(pth_file_path)))
+
+        # Move the .index file
+        shutil.move(new_index_file_path, os.path.join(
+            self.rvc_index_dir, os.path.basename(new_index_file_path)))
+
+        # Remove the folder once done
+        try:
+            # Use this if the folder is expected to be empty
+            os.rmdir(folder_path)
+        except OSError:
+            # Use this if the folder might contain other files
+            shutil.rmtree(folder_path)
+
+
     def preprocess_text(self, text):
         print(f"replacing decimal point with the word point.")
         print(f"original:) {text}")

@@ -1,7 +1,7 @@
 {
   "Aya_LLM_GGUF": true,
-  "Chess": true,
-  "Local_EN_to_JA": true,
+  "Chess": false,
+  "Local_EN_to_JA": false,
   "Idle_think": false,
   "vitsTTS": false,
   "gpt_sovits": false,
@@ -12,9 +12,9 @@
   "rvc": true,
   "silero": false,
   "OtherLLM": false,
-  "TwitchChatFetch": false,
-  "VoiceInput": true,
-  "voicevox": true,
+  "TwitchChatFetch": true,
+  "VoiceInput": false,
+  "voicevox": false,
   "VtubeStudio": true,
   "YoutubeChatFetch": true
 }
