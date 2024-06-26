@@ -6,7 +6,7 @@ import gradio as gr
 from pluginSelectionBase import PluginSelectionBase
 import os
 from liveTextbox import LiveTextbox
-import utils
+import LAVutils
 
 
 class LLM(PluginSelectionBase):

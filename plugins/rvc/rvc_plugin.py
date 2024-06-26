@@ -1,6 +1,6 @@
 import io
 import re
-from utils import download_and_extract_zip
+from LAVutils import download_and_extract_zip
 from .inferrvc import load_torchaudio
 from .inferrvc import RVC
 import edge_tts

@@ -4,7 +4,7 @@ from pluginInterface import TranslationPluginInterface
 import gradio as gr
 from pluginSelectionBase import PluginSelectionBase
 from liveTextbox import LiveTextbox
-import utils
+import LAVutils
 
 
 class Translate(PluginSelectionBase):

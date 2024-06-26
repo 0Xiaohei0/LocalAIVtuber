@@ -9,7 +9,7 @@ from tqdm import tqdm
 from pluginInterface import VtuberPluginInterface
 import gradio as gr
 from pluginSelectionBase import PluginSelectionBase
-import utils
+import LAVutils
 from pydub import AudioSegment
 import simpleaudio as sa
 

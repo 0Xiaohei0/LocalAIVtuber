@@ -12,7 +12,7 @@ from liveTextbox import LiveTextbox
 from pluginInterface import TTSPluginInterface
 import gradio as gr
 from pluginSelectionBase import PluginSelectionBase
-import utils
+import LAVutils
 from pydub import AudioSegment
 import simpleaudio as sa
 import pyaudio
