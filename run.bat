@@ -94,6 +94,7 @@ echo C++ Build Tools installed successfully.
 
 :SkipCPPInstallation
 echo Installing dependencies...
+CALL python -m pip install pip==24.0
 CALL pip install -r requirements.txt
 CALL pip3 install torch torchaudio
 
