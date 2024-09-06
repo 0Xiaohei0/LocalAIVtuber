@@ -67,11 +67,12 @@ set "CUDA_HOME=%CUDA_PATH%"
 
 @rem activate installer env
 call "%CONDA_ROOT_PREFIX%\condabin\conda.bat" activate "%INSTALL_ENV_DIR%" || ( echo. && echo Miniconda hook not found. && goto end )
-
+echo "%CONDA_ROOT_PREFIX%\condabin\conda.bat" activate "%INSTALL_ENV_DIR%"
 echo Virtual environment activated.
+goto :startmain
 
 :: Path to the expected installation directory of the Build Tools
-set VSBUILDTOOLS_DIR=C:\BuildTools
+set VSBUILDTOOLS_DIR=%cd%\BuildTools
 
 echo checking C++ Build Tools.
 :: Check if the Build Tools are installed
@@ -105,6 +106,7 @@ if not exist "%conda_path_bin%" (
     mkdir "%conda_path_bin%"
 )
 
+:startmain
 echo Starting main.py...
 python main.py
 

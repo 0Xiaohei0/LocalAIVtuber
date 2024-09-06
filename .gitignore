@@ -18,3 +18,4 @@ plugins/VtubeStudio/token.txt
 *.index
 !vs_BuildTools.exe
 installer_files
+BuildTools
