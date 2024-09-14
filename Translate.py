@@ -4,7 +4,7 @@ from pluginInterface import TranslationPluginInterface
 import gradio as gr
 from pluginSelectionBase import PluginSelectionBase
 from liveTextbox import LiveTextbox
-import utils
+import LAV_utils
 
 
 class Translate(PluginSelectionBase):
@@ -56,7 +56,7 @@ class Translate(PluginSelectionBase):
             while (not self.input_queue.empty()):
                 self.translate_wrapper(self.input_queue.get())
                 self.queue_live_textbox.set(
-                    utils.queue_to_list(self.input_queue))
+                    LAV_utils.queue_to_list(self.input_queue))
 
         # Check if the current thread is alive
         if self.input_process_thread is None or not self.input_process_thread.is_alive():

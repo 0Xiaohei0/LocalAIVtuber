@@ -19,7 +19,7 @@ from random import shuffle
 import torch.multiprocessing as mp
 from glob import glob
 from tqdm import tqdm
-import logging, librosa, utils, torch
+import logging, librosa, plugins.gpt_sovits.GPT_SoVITS.utils as utils, torch
 from module.models import SynthesizerTrn
 
 logging.getLogger("numba").setLevel(logging.WARNING)

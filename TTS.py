@@ -12,7 +12,7 @@ from liveTextbox import LiveTextbox
 from pluginInterface import TTSPluginInterface
 import gradio as gr
 from pluginSelectionBase import PluginSelectionBase
-import utils
+import LAV_utils
 from pydub import AudioSegment
 import simpleaudio as sa
 import pyaudio
@@ -97,7 +97,7 @@ class TTS(PluginSelectionBase):
                 self.audio_data_queue.put([function(input), input])
                 self.process_audio_queue(self.play_sound_from_bytes)
                 self.process_queue_live_textbox.set(
-                    utils.queue_to_list(self.input_queue))
+                    LAV_utils.queue_to_list(self.input_queue))
                 self.log_live_textbox.print(f"Audio synthesized for: {input}")
 
         # Check if the current thread is alive
@@ -118,7 +118,7 @@ class TTS(PluginSelectionBase):
                 self.update_subtitle_file(audio_data_pair[1])
                 function(audio_data_pair[0])
                 self.playback_queue_live_textbox.set(
-                    utils.queue_to_list(self.audio_data_queue))
+                    LAV_utils.queue_to_list(self.audio_data_queue))
 
         # Check if the current thread is alive
         if self.audio_playback_thread is None or not self.audio_playback_thread.is_alive():

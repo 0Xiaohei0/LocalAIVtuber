@@ -1,4 +1,4 @@
-import utils, os
+import plugins.gpt_sovits.GPT_SoVITS.utils as utils, os
 
 hps = utils.get_hparams(stage=2)
 os.environ["CUDA_VISIBLE_DEVICES"] = hps.train.gpu_numbers.replace("-", ",")

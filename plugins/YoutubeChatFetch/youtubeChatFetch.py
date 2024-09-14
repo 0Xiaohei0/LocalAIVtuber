@@ -8,7 +8,7 @@ from pluginInterface import InputPluginInterface
 import gradio as gr
 from liveTextbox import LiveTextbox
 from globals import global_state, GlobalKeys
-import utils
+import LAV_utils
 
 class YoutubeChatFetch(InputPluginInterface):
     read_chat_youtube_thread = None
@@ -91,13 +91,13 @@ class YoutubeChatFetch(InputPluginInterface):
     def process_chat_log(self):
         def generate_response():
             while (not self.chatlog.empty()):
-                self.queue_textbox.set(utils.queue_to_list(self.chatlog))
+                self.queue_textbox.set(LAV_utils.queue_to_list(self.chatlog))
                 if(global_state.get_value(GlobalKeys.IS_IDLE)):
                     input = self.chatlog.get()
                     prompt = self.prompt_format.replace("[name]", input[0]).replace("[message]", input[1])
                     self.process_input(prompt)
                     self.console_textbox.print(f"Sending: {prompt}")
-                    self.queue_textbox.set(utils.queue_to_list(self.chatlog))
+                    self.queue_textbox.set(LAV_utils.queue_to_list(self.chatlog))
                 time.sleep(5)    
 
         # Check if the current thread is alive

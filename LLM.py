@@ -6,7 +6,7 @@ import gradio as gr
 from pluginSelectionBase import PluginSelectionBase
 import os
 from liveTextbox import LiveTextbox
-import utils
+import LAV_utils
 
 
 class LLM(PluginSelectionBase):
@@ -150,4 +150,4 @@ class LLM(PluginSelectionBase):
                 for _ in response:
                     pass  # need to keep iterating the generator
                     self.process_queue_live_textbox.set(
-                        utils.queue_to_list(self.input_queue))
+                        LAV_utils.queue_to_list(self.input_queue))
