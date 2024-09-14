@@ -62,8 +62,8 @@ g_config = global_config.Config()
 
 current_module_directory = os.path.dirname(__file__)
 
-sovits_path = os.path.join(current_module_directory, "SoVITS_weights", "流萤_e15_s810.pth")
-gpt_path = os.path.join(current_module_directory, "GPT_weights", "流萤-e10.ckpt")
+sovits_path = os.path.join(current_module_directory, "SoVITS_weights", "test.pth")
+gpt_path = os.path.join(current_module_directory, "GPT_weights", "s1bert25hz-2kh-longer-epoch=68e-step=50232.ckpt")
 device = "cuda"
 cnhubert_base_path =  os.path.join(current_module_directory, g_config.cnhubert_path)
 bert_path = os.path.join(current_module_directory, g_config.bert_path)
@@ -72,8 +72,8 @@ media_type = "wav"
 stream_mode = "close"
 full_precision = False
 half_precision = False
-default_refer_path = os.path.join(current_module_directory, "sample", "说话-因为你身上别着星穹列车的徽章呀，我在大银幕上见过！.wav")
-default_refer_text = "说话-因为你身上别着星穹列车的徽章呀，我在大银幕上见过！"
+default_refer_path = os.path.join(current_module_directory, "sample", "你好，我叫绘美，很高兴认识你！.wav")
+default_refer_text = "你好，我叫绘美，很高兴认识你！"
 default_refer_language = "zh"
 
 # 应用参数配置
