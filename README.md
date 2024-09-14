@@ -16,9 +16,15 @@ early test stream (https://www.youtube.com/live/9LK_-pqz8Ts?si=yUd-Wz6xV6wXt-t7)
 
 
 ## Installation
+### Prepackaged zip (recommended)
+If you are a Windows user, you can [download the integrated package](https://huggingface.co/xiaoheiqaq/LocalAiVtuber-windows-package/resolve/main/LocalAIVtuber.zip?download=true)
+and double-click on run.bat to start the webUI.
+
+
+### Manual setup
 1. Download the project as zip from [releases](https://github.com/0Xiaohei0/LocalAIVtuber/releases)
-2. Extract and double click run.bat
-3. When you see this message, go to http://localhost:7860 to see web UI 
+3. Extract and double click run.bat
+4. When you see this message, go to http://localhost:7860 to see web UI 
 ```
 Running on local URL:  http://127.0.0.1:7860
 
