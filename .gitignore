@@ -8,6 +8,8 @@ gradio_cached_examples
 gradio-env
 models
 Context*.txt
+subtitle.txt
+*.ini
 plugins/voicevox/VOICEVOX
 plugins/Local_EN_to_JA/models--staka--fugumt-en-ja
 plugins/VtubeStudio/token.txt
