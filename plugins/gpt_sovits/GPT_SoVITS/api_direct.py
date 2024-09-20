@@ -25,9 +25,9 @@ import subprocess
     
 class DefaultRefer:
     def __init__(self, path, text, language):
-        self.path = default_refer_path
-        self.text = default_refer_text
-        self.language = default_refer_language
+        self.path = path
+        self.text = text
+        self.language = language
 
     def is_ready(self) -> bool:
         return is_full(self.path, self.text, self.language)
@@ -62,8 +62,8 @@ g_config = global_config.Config()
 
 current_module_directory = os.path.dirname(__file__)
 
-sovits_path = os.path.join(current_module_directory, "SoVITS_weights", "test.pth")
-gpt_path = os.path.join(current_module_directory, "GPT_weights", "s1bert25hz-2kh-longer-epoch=68e-step=50232.ckpt")
+sovits_path = os.path.join(current_module_directory, "SoVITS_weights", "")
+gpt_path = os.path.join(current_module_directory, "GPT_weights", "")
 device = "cuda"
 cnhubert_base_path =  os.path.join(current_module_directory, g_config.cnhubert_path)
 bert_path = os.path.join(current_module_directory, g_config.bert_path)
@@ -72,29 +72,9 @@ media_type = "wav"
 stream_mode = "close"
 full_precision = False
 half_precision = False
-default_refer_path = os.path.join(current_module_directory, "sample", "你好，我叫绘美，很高兴认识你！.wav")
-default_refer_text = "你好，我叫绘美，很高兴认识你！"
-default_refer_language = "zh"
-
-# 应用参数配置
-default_refer = DefaultRefer(default_refer_path, default_refer_text, default_refer_language)
-
-# 模型路径检查
-if sovits_path == "":
-    sovits_path = g_config.pretrained_sovits_path
-    logger.warn(f"未指定SoVITS模型路径, fallback后当前值: {sovits_path}")
-if gpt_path == "":
-    gpt_path = g_config.pretrained_gpt_path
-    logger.warn(f"未指定GPT模型路径, fallback后当前值: {gpt_path}")
-
-# 指定默认参考音频, 调用方 未提供/未给全 参考音频参数时使用
-if default_refer.path == "" or default_refer.text == "" or default_refer.language == "":
-    default_refer.path, default_refer.text, default_refer.language = "", "", ""
-    logger.info("未指定默认参考音频")
-else:
-    logger.info(f"默认参考音频路径: {default_refer.path}")
-    logger.info(f"默认参考音频文本: {default_refer.text}")
-    logger.info(f"默认参考音频语种: {default_refer.language}")
+default_refer_path = ""
+default_refer_text = ""
+default_refer_language = ""
 
 # 获取半精度
 is_half = g_config.is_half
@@ -126,8 +106,33 @@ tokenizer = None
 bert_model = None 
 ssl_model = None
 
+default_refer = None
 
-def init():
+def init(sovits_path, gpt_path, default_refer_path, default_refer_text, default_refer_language):
+    
+    print(f"init(sovits_path, gpt_path, {default_refer_path}, {default_refer_text}, {default_refer_language})")
+    global default_refer
+    default_refer = DefaultRefer(default_refer_path, default_refer_text, default_refer_language)
+    print(f"默认参考音频路径: {default_refer.path}")
+    print(f"默认参考音频文本: {default_refer.text}")
+    print(f"默认参考音频语种: {default_refer.language}")
+    # 模型路径检查
+    if sovits_path == "":
+        sovits_path = g_config.pretrained_sovits_path
+        logger.warn(f"未指定SoVITS模型路径, fallback后当前值: {sovits_path}")
+    if gpt_path == "":
+        gpt_path = g_config.pretrained_gpt_path
+        logger.warn(f"未指定GPT模型路径, fallback后当前值: {gpt_path}")
+
+    # 指定默认参考音频, 调用方 未提供/未给全 参考音频参数时使用
+    if default_refer.path == "" or default_refer.text == "" or default_refer.language == "":
+        default_refer.path, default_refer.text, default_refer.language = "", "", ""
+        logger.info("未指定默认参考音频")
+    else:
+        logger.info(f"默认参考音频路径: {default_refer.path}")
+        logger.info(f"默认参考音频文本: {default_refer.text}")
+        logger.info(f"默认参考音频语种: {default_refer.language}")
+
     # 初始化模型
     global tokenizer, bert_model, ssl_model
     cnhubert.cnhubert_base_path = cnhubert_base_path
@@ -478,24 +483,21 @@ def handle_control(command):
         exit(0)
 
 
-# def handle_change(path, text, language):
-#     if is_empty(path, text, language):
-#         return JSONResponse({"code": 400, "message": '缺少任意一项以下参数: "path", "text", "language"'}, status_code=400)
+def handle_change(path, text, language):
+    if is_empty(path, text, language):
+        print('缺少任意一项以下参数: "path", "text", "language"')
 
-#     if path != "" or path is not None:
-#         default_refer.path = path
-#     if text != "" or text is not None:
-#         default_refer.text = text
-#     if language != "" or language is not None:
-#         default_refer.language = language
+    if path != "" or path is not None:
+        default_refer.path = path
+    if text != "" or text is not None:
+        default_refer.text = text
+    if language != "" or language is not None:
+        default_refer.language = language
 
-#     logger.info(f"当前默认参考音频路径: {default_refer.path}")
-#     logger.info(f"当前默认参考音频文本: {default_refer.text}")
-#     logger.info(f"当前默认参考音频语种: {default_refer.language}")
-#     logger.info(f"is_ready: {default_refer.is_ready()}")
-
-
-#     return JSONResponse({"code": 0, "message": "Success"}, status_code=200)
+    logger.info(f"当前默认参考音频路径: {default_refer.path}")
+    logger.info(f"当前默认参考音频文本: {default_refer.text}")
+    logger.info(f"当前默认参考音频语种: {default_refer.language}")
+    logger.info(f"is_ready: {default_refer.is_ready()}")
 
 
 def handle(refer_wav_path, prompt_text, prompt_language, text, text_language, cut_punc):
@@ -517,6 +519,10 @@ def handle(refer_wav_path, prompt_text, prompt_language, text, text_language, cu
     else:
         text = cut_text(text,cut_punc)
 
+    
+    print(f"refer_wav_path {refer_wav_path}")
+    print(f"prompt_text {prompt_text}")
+    print(f"prompt_language {prompt_language}")
     return get_tts_wav(refer_wav_path, prompt_text, prompt_language, text, text_language)
 
 

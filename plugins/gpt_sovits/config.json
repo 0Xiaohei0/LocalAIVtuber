@@ -1,0 +1,17 @@
+[
+    {
+        "name": "leaf",
+        "sovits_path": "leaf\\leaf_e8_s136.pth",
+        "gpt_path":"leaf\\leaf-e10.ckpt",
+        "reference_audio_path":"leaf\\The birch canoe slid on the smooth planks..wav",
+        "reference_audio_text":"The birch canoe slid on the smooth planks.Glue the sheet to the dark blue background.",
+        "reference_audio_language":"en"
+    },{
+        "name": "leaf",
+        "sovits_path": "leaf\\leaf_e8_s136.pth",
+        "gpt_path":"leaf\\leaf-e10.ckpt",
+        "reference_audio_path":"leaf\\The birch canoe slid on the smooth planks..wav",
+        "reference_audio_text":"The birch canoe slid on the smooth planks.Glue the sheet to the dark blue background.",
+        "reference_audio_language":"en"
+    }
+]

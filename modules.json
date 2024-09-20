@@ -1,5 +1,5 @@
 {
-  "Aya_LLM_GGUF": false,
+  "Aya_LLM_GGUF": true,
   "Chess": false,
   "Local_EN_to_JA": false,
   "Idle_think": false,
@@ -9,7 +9,7 @@
   "No_Translate": true,
   "Rana_LLM": false,
   "Rana_LLM_gguf": false,
-  "ChatGPT_Azure": true,
+  "ChatGPT_Azure": false,
   "rvc": false,
   "silero": false,
   "OtherLLM": false,

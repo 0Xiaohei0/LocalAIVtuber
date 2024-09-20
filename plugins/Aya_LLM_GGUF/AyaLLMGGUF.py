@@ -12,7 +12,7 @@ class AyaLLM(LLMPluginInterface):
     def init(self):
         # Directory where the module is located
         current_module_directory = os.path.dirname(__file__)
-        model_filename = "Aya-7b_Q4_K_M.gguf"
+        model_filename = "aya-v0.2-q4_k_m.gguf"
         model_directory = os.path.join(current_module_directory, "models")
         model_path = os.path.join(model_directory, model_filename)
 
@@ -23,7 +23,7 @@ class AyaLLM(LLMPluginInterface):
                 os.makedirs(model_directory)
 
             # URL to download the model
-            url = "https://huggingface.co/xiaoheiqaq/Aya-7b-gguf/resolve/main/Aya-7b_Q4_K_M.gguf?download=true"
+            url = "https://huggingface.co/xiaoheiqaq/Aya-v0.2-Q4_K_M-GGUF/resolve/main/aya-v0.2-q4_k_m.gguf?download=true"
             
              # Download the file with progress
             print(f"Downloading model from {url}...")
