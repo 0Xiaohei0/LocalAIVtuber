@@ -7,7 +7,7 @@ import os
 
 
 class AyaLLM(LLMPluginInterface):
-    context_length = 4096
+    context_length = 32768
     temperature = 0.9
     def init(self):
         # Directory where the module is located
@@ -91,7 +91,7 @@ class AyaLLM(LLMPluginInterface):
         print(f"Generating with temperature {self.temperature}")
 
         completion_chunks = self.llm.create_chat_completion(
-            messages, stream=True, temperature=self.temperature)
+            messages, stream=True, presence_penalty=1.0, frequency_penalty=1.0, temperature=self.temperature)
         output = ""
         for completion_chunk in completion_chunks:
             try:

@@ -24,6 +24,7 @@ class GPT_SOVITS(TTSPluginInterface):
     
     voice_configs = []
     current_voice_config = None
+    language = "auto"
 
     def load_voice_config(self):
         with open(self.CONFIG_FILENAME, 'r', encoding='utf-8') as file:
@@ -51,7 +52,7 @@ class GPT_SOVITS(TTSPluginInterface):
 
     def synthesize(self, text):
         text = self.preprocess_text(text)
-        response = api.tts_endpoint(text=text, text_language='auto')
+        response = api.tts_endpoint(text=text, text_language=self.language)
 
         try:
             with open(self.OUTPUT_FILENAME, 'wb') as file:
@@ -69,12 +70,18 @@ class GPT_SOVITS(TTSPluginInterface):
                 self.voices_dropdown.change(self.change_voice, [self.voices_dropdown], [])
                 self.refresh_button = gr.Button("Refresh", variant="primary")
                 self.refresh_button.click(fn=self.refresh_choices, inputs=[], outputs=[self.voices_dropdown])
+                self.language_dropdown = gr.Dropdown(label="languages:",
+                                                   choices=["auto", "en", "zh", "ja"], value=self.language, interactive=True)
+                self.language_dropdown.change(self.change_language, [self.language_dropdown], [])
 
     def change_voice(self,voice_name):
         for voice in self.voice_configs:
             if voice['name'] == voice_name:
                 self.current_voice_config = voice
                 return voice_name
+
+    def change_language(self,language):
+        self.language = language
 
     def get_voice_names(self):
         return list(map(lambda x:x["name"], self.voice_configs))

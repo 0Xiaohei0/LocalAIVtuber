@@ -9,11 +9,15 @@ import numpy as np
 import speech_recognition as sr
 import whisper
 from .languages import LANGUAGES
+from eventManager import event_manager, EventType
+import keyboard
 
 class VoiceInput(InputPluginInterface):
     current_module_directory = os.path.dirname(__file__)
     MIC_OUTPUT_PATH = os.path.join(
         current_module_directory, "voice_recording.wav")
+
+    key_to_bind = "ctrl+shift+a"  # Default binding
 
     def init(self):
         self.liveTextbox = LiveTextbox()
@@ -23,10 +27,13 @@ class VoiceInput(InputPluginInterface):
         self.input_language = "english"
         self.ambience_adjusted = False
 
-        self.model = whisper.load_model("base")
+        self.model = whisper.load_model("base.en")
         self.liveTextbox.print(f"whisper_model.device: {self.model.device}")
         self.whisper_filter_list = [
-            'you', 'thank you.', 'thanks for watching.', "Thank you for watching.", "1.5%"]
+            'you', 'thank you.', 'thanks for watching.', "Thank you for watching.", "1.5%", "I'm going to put it in the fridge.", "I", ".", "Okay.", "Bye."]
+        
+        # Assign the function to be called when the space bar is pressed
+        keyboard.add_hotkey(self.key_to_bind, self.on_interrupt_key)
 
     def create_ui(self):
         with gr.Accordion("Voice Input",open=False):
@@ -115,3 +122,8 @@ class VoiceInput(InputPluginInterface):
             return
         self.liveTextbox.print(f"transcribed output: {transcribed_text}")
         self.process_input(transcribed_text)
+
+    def on_interrupt_key(self):
+        print(f"You pressed the '{self.key_to_bind}' key!")
+        event_manager.trigger(EventType.INTERRUPT)
+

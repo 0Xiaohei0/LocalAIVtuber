@@ -17,7 +17,7 @@ class LLM(PluginSelectionBase):
     liveTextbox = LiveTextbox()
     process_queue_live_textbox = LiveTextbox()
     
-    remember_history = False
+    remember_history = True
 
     def __init__(self) -> None:
         super().__init__(LLMPluginInterface)

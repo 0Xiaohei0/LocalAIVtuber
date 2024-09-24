@@ -70,7 +70,6 @@ call "%CONDA_ROOT_PREFIX%\condabin\conda.bat" activate "%INSTALL_ENV_DIR%" || ( 
 echo "%CONDA_ROOT_PREFIX%\condabin\conda.bat" activate "%INSTALL_ENV_DIR%"
 echo Virtual environment activated.
 goto :startmain
-
 :: Path to the expected installation directory of the Build Tools
 set VSBUILDTOOLS_DIR=%cd%\BuildTools
 
