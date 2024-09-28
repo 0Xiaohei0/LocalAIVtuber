@@ -7,12 +7,12 @@ import os
 
 
 class AyaLLM(LLMPluginInterface):
-    context_length = 4096
+    context_length = 32768
     temperature = 0.9
     def init(self):
         # Directory where the module is located
         current_module_directory = os.path.dirname(__file__)
-        model_filename = "Aya-7b_Q4_K_M.gguf"
+        model_filename = "aya-v0.2-q4_k_m.gguf"
         model_directory = os.path.join(current_module_directory, "models")
         model_path = os.path.join(model_directory, model_filename)
 
@@ -23,7 +23,7 @@ class AyaLLM(LLMPluginInterface):
                 os.makedirs(model_directory)
 
             # URL to download the model
-            url = "https://huggingface.co/xiaoheiqaq/Aya-7b-gguf/resolve/main/Aya-7b_Q4_K_M.gguf?download=true"
+            url = "https://huggingface.co/xiaoheiqaq/Aya-v0.2-Q4_K_M-GGUF/resolve/main/aya-v0.2-q4_k_m.gguf?download=true"
             
              # Download the file with progress
             print(f"Downloading model from {url}...")
@@ -49,7 +49,7 @@ class AyaLLM(LLMPluginInterface):
                 return
 
         # Initialize the model
-        self.llm = Llama(model_path=model_path, chat_format="chatml", n_ctx=self.context_length, n_gpu_layers=-1)
+        self.llm = Llama(model_path=model_path, n_ctx=self.context_length, n_gpu_layers=-1, seed=-1)
 
     def create_ui(self):
         with gr.Accordion("Aya LLM settings", open=False):

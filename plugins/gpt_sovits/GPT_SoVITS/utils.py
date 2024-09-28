@@ -18,7 +18,7 @@ logging.getLogger("matplotlib").setLevel(logging.ERROR)
 
 MATPLOTLIB_FLAG = False
 
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+# logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 logger = logging
 
 
@@ -325,7 +325,7 @@ def get_logger(model_dir, filename="train.log"):
     if not os.path.exists(model_dir):
         os.makedirs(model_dir)
     h = logging.FileHandler(os.path.join(model_dir, filename))
-    h.setLevel(logging.DEBUG)
+    #h.setLevel(logging.DEBUG)
     h.setFormatter(formatter)
     logger.addHandler(h)
     return logger

@@ -11,7 +11,7 @@ from tqdm import tqdm
 from module import commons
 from module.mel_processing import spectrogram_torch
 from text import cleaned_text_to_sequence
-from utils import load_wav_to_torch, load_filepaths_and_text
+from plugins.gpt_sovits.GPT_SoVITS.utils import load_wav_to_torch, load_filepaths_and_text
 import torch.nn.functional as F
 from functools import lru_cache
 import requests

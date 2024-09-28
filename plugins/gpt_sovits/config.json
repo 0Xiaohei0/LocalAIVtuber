@@ -1,0 +1,10 @@
+[
+    {
+        "name": "leaf",
+        "sovits_path": "leaf\\leaf_e8_s136.pth",
+        "gpt_path":"leaf\\s1bert25hz-2kh-longer-epoch=68e-step=50232.ckpt",
+        "reference_audio_path":"leaf\\The birch canoe slid on the smooth planks..wav",
+        "reference_audio_text":"The birch canoe slid on the smooth planks.Glue the sheet to the dark blue background.",
+        "reference_audio_language":"en"
+    }
+]

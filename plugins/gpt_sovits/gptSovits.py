@@ -1,75 +1,107 @@
-import requests
+
+
+import json
 import os
-import gradio as gr
+import re
+import sys
 from pluginInterface import TTSPluginInterface
-import subprocess
+import gradio as gr
+
+sys.path.append(os.path.join(os.path.dirname(__file__), "GPT_SoVITS"))
+sys.path.append(os.path.join(os.path.dirname(__file__)))
+import GPT_SoVITS.api_direct as api
 
 
+class GPT_SOVITS(TTSPluginInterface):
 
-class gptSovits(TTSPluginInterface):
     current_module_directory = os.path.dirname(__file__)
-    output_dir = os.path.join(current_module_directory, "output.wav")
-    server_dir = os.path.join(current_module_directory, "GPT_SoVITS")
-    lang = ["zh","en","ja"]
-    url = "http://127.0.0.1:9880"
+    models_directory = os.path.join(
+        current_module_directory, "models")
+    OUTPUT_FILENAME = os.path.join(
+        current_module_directory, "output.wav")
+    CONFIG_FILENAME = os.path.join(
+        current_module_directory, "config.json")
+    
+    voice_configs = []
+    current_voice_config = None
+    language = "en"
+
+    def load_voice_config(self):
+        with open(self.CONFIG_FILENAME, 'r', encoding='utf-8') as file:
+            self.voice_configs = json.load(file)
+            print(f"self.voice_configs {self.voice_configs}")
+        if (not self.current_voice_config and len(self.voice_configs) > 0):
+            self.current_voice_config = self.voice_configs[0]
+            print(f"self.current_voice_config {self.current_voice_config}")
+
+        print(self.current_voice_config)
+        sovits_path = os.path.join(self.models_directory, self.current_voice_config["sovits_path"])
+        gpt_path = os.path.join(self.models_directory, self.current_voice_config["gpt_path"])
+        reference_audio_path = os.path.join(self.models_directory, self.current_voice_config["reference_audio_path"])
+        reference_audio_text = self.current_voice_config["reference_audio_text"]
+        reference_audio_language = self.current_voice_config["reference_audio_language"]
+        
+        # api.handle_change(reference_audio_path, reference_audio_text, reference_audio_language)
+        # api.change_sovits_weights(sovits_path)
+        # api.change_gpt_weights(gpt_path)
+        api.init(sovits_path, gpt_path, reference_audio_path, reference_audio_text, reference_audio_language)
 
     def init(self):
-        self.language = self.lang[1]
-        command = [
-        "python", "api.py",
-        "-s", r"./SoVITS_weights/kokomi2_e15_s2295.pth",
-        "-g", r"./GPT_weights/kokomi2-e10.ckpt",
-        "-dr", r"./ふーん、新作対戦ゲーム設置しました、か.mp3",
-        "-dt", "ふーん、新作対戦ゲーム設置しました、か",
-        "-dl", "ja"
-        ]
-
-        # command = [
-        # "python", "api.py",
-        # "-s", r"./SoVITS_weights/kokomi2_e15_s2295.pth",
-        # "-g", r"./GPT_weights/kokomi2-e10.ckpt",
-        # "-dr", r"./vo_card_kokomi_freetalk_01.wav",
-        # "-dt", "The situation is ever-changing in a card game. To emerge victorious, you have to be willing to take some risks.",
-        # "-dl", "en"
-        # ]
-
-        # command = [
-        # "python", "api.py",
-        # "-s", r"./SoVITS_weights/nene60_test_e8_s280.pth",
-        # "-g", r"./GPT_weights/nene60-test-e20.ckpt",
-        # "-dr", r"./sample.mp3",
-        # "-dt", "ふーん、新作対戦ゲーム設置しました、か",
-        # "-dl", "ja"
-        # ]
-        print(f"process = subprocess.Popen({command}, cwd={self.server_dir}, shell=True)")
-        process = subprocess.Popen(command, cwd=self.server_dir, shell=True)
-        print(f"GPT-Sovits Server started with PID {process.pid}")
+        self.load_voice_config()
+        
 
     def synthesize(self, text):
-        params = {
-            'text': text,
-            'text_language': self.language
-        }
-        response = requests.get(self.url, params=params)
+        text = self.preprocess_text(text)
+        
+        try:
+            response = api.tts_endpoint(text=text, text_language=self.language)
+            with open(self.OUTPUT_FILENAME, 'wb') as file:
+                file.write(response)
+        except Exception as e:
+            print("Failed to generate audio file.", e)
 
-        if response.status_code == 200:
-            with open(self.output_dir, 'wb') as file:
-                file.write(response.content)
-            print("Audio file downloaded successfully:", self.output_dir)
-        else:
-            print("Failed to download audio file. Status Code:", response.status_code)
-            
-        return response.content
-
+        return response
 
     def create_ui(self):
-        with gr.Accordion(label="gpt-sovits Options", open=False):
+        with gr.Accordion(label="Gpt-sovits Options", open=False):
             with gr.Row():
-                self.language_dropdown = gr.Dropdown(choices=self.lang, value=self.language, label='language')
-                
-        self.language_dropdown.change(self.update_language, inputs=[self.language_dropdown])
+                self.voices_dropdown = gr.Dropdown(label="Voices:",
+                                                   choices=self.get_voice_names(), value=self.current_voice_config['name'] if len(self.voice_configs) > 0 else None, interactive=True)
+                self.voices_dropdown.change(self.change_voice, [self.voices_dropdown], [])
+                self.refresh_button = gr.Button("Refresh", variant="primary")
+                self.refresh_button.click(fn=self.refresh_choices, inputs=[], outputs=[self.voices_dropdown])
+                self.language_dropdown = gr.Dropdown(label="languages:",
+                                                   choices=["auto", "en", "zh", "ja"], value=self.language, interactive=True)
+                self.language_dropdown.change(self.change_language, [self.language_dropdown], [])
+
+    def change_voice(self,voice_name):
+        for voice in self.voice_configs:
+            if voice['name'] == voice_name:
+                self.current_voice_config = voice
+                return voice_name
+
+    def change_language(self,language):
+        self.language = language
+
+    def get_voice_names(self):
+        return list(map(lambda x:x["name"], self.voice_configs))
+
+    def refresh_choices(self):
+        voice_names = self.get_voice_names()
+        return {"choices": voice_names, "__type__": "update"}
     
-    def update_language(self, input):
-        self.language = input
-    
-    
+    def preprocess_text(self, text):
+        print(f"replacing decimal point with the word point.")
+        print(f"original:) {text}")
+
+        pattern = r'\b\d*\.\d+\b'
+
+        def replace_match(match):
+            decimal_number = match.group(0)
+            return decimal_number.replace('.', ' point ')
+
+        # Replace all occurrences of decimal patterns in the text
+        replaced_text = re.sub(pattern, replace_match, text)
+        print(f"replaced_text: {replaced_text}")
+        
+        return replaced_text

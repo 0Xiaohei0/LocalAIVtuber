@@ -12,12 +12,13 @@ from liveTextbox import LiveTextbox
 from pluginInterface import TTSPluginInterface
 import gradio as gr
 from pluginSelectionBase import PluginSelectionBase
-import utils
+import LAV_utils
 from pydub import AudioSegment
 import simpleaudio as sa
 import pyaudio
 from pydub import AudioSegment
 from pydub.utils import audioop
+from eventManager import event_manager, EventType
 
 
 class TTS(PluginSelectionBase):
@@ -27,6 +28,7 @@ class TTS(PluginSelectionBase):
     audio_data_queue = Queue()
     audio_process_thread = None
     audio_playback_thread = None
+    interrupt = False
 
     log_live_textbox = LiveTextbox()
     process_queue_live_textbox = LiveTextbox()
@@ -36,6 +38,7 @@ class TTS(PluginSelectionBase):
     def __init__(self) -> None:
         super().__init__(TTSPluginInterface)
         self.check_ffmpeg()
+        event_manager.subscribe(EventType.INTERRUPT, self.handle_interrupt )
 
     def create_ui(self):
         with gr.Tab("TTS"):
@@ -97,7 +100,7 @@ class TTS(PluginSelectionBase):
                 self.audio_data_queue.put([function(input), input])
                 self.process_audio_queue(self.play_sound_from_bytes)
                 self.process_queue_live_textbox.set(
-                    utils.queue_to_list(self.input_queue))
+                    LAV_utils.queue_to_list(self.input_queue))
                 self.log_live_textbox.print(f"Audio synthesized for: {input}")
 
         # Check if the current thread is alive
@@ -118,7 +121,7 @@ class TTS(PluginSelectionBase):
                 self.update_subtitle_file(audio_data_pair[1])
                 function(audio_data_pair[0])
                 self.playback_queue_live_textbox.set(
-                    utils.queue_to_list(self.audio_data_queue))
+                    LAV_utils.queue_to_list(self.audio_data_queue))
 
         # Check if the current thread is alive
         if self.audio_playback_thread is None or not self.audio_playback_thread.is_alive():
@@ -152,11 +155,19 @@ class TTS(PluginSelectionBase):
 
         p = pyaudio.PyAudio()
 
-        stream = p.open(format=p.get_format_from_width(audio.sample_width),
-                        channels=audio.channels,
-                        rate=audio.frame_rate,
-                        output=True,
-                        frames_per_buffer=chunk_size)
+        try:
+            stream = p.open(format=p.get_format_from_width(audio.sample_width),
+                            channels=audio.channels,
+                            rate=audio.frame_rate,
+                            output=True,
+                            frames_per_buffer=chunk_size)
+        except OSError as e:
+            if e.errno == -9997:
+                print(f"Error: Invalid sample rate {audio.frame_rate}. Please check your audio device or adjust the rate.")
+            else:
+                print(f"Unexpected error occurred: {e}")
+        except Exception as e:
+            print(f"An error occurred: {e}")
 
         def process_chunk(i):
             chunk_data = audio.raw_data[i:i+chunk_size]
@@ -171,6 +182,16 @@ class TTS(PluginSelectionBase):
             # Play the current chunk
             stream.write(chunk_data)
 
+            if (self.interrupt): 
+                self.input_queue = Queue()
+                self.audio_data_queue = Queue()
+                self.interrupt = False
+                # Stop and close the stream
+                stream.stop_stream()
+                stream.close()
+                # Close PyAudio
+                p.terminate()
+                break
             # Calculate volume for the next chunk
             chunk_data, normalized_volume = process_chunk(i)
             self.send_output(normalized_volume)
@@ -242,6 +263,9 @@ class TTS(PluginSelectionBase):
                 # Delete the ZIP file after extraction
                 os.remove(file_name)
 
+    def handle_interrupt(self):
+        self.interrupt = True
+        print("Interrupting pipeline")
     def send_output(self, output):
         # print(output)
         for subcriber in self.output_event_listeners:

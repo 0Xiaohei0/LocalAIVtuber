@@ -50,7 +50,7 @@ class LocalLLM(LLMPluginInterface):
 
         # Initialize the model
         self.llm = Llama(model_path=model_path,
-                         chat_format="chatml", n_ctx=self.context_length)
+                         chat_format="chatml", n_ctx=self.context_length, n_gpu_layers=-1)
 
 
 # https://huggingface.co/TheBloke/dolphin-2.2.1-mistral-7B-GGUF/blob/main/dolphin-2.2.1-mistral-7b.Q4_K_M.gguf

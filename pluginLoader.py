@@ -62,10 +62,6 @@ class PluginLoader:
                 # Remove plugin_directory from path
                 module_name = module_name[len(self.plugin_directory) + 1:]
                 plugin_name = os.path.basename(directory)
-                spec = importlib.util.spec_from_file_location(
-                    module_name, module_path)
-                module = importlib.util.module_from_spec(spec)
-                spec.loader.exec_module(module)
 
                 # skip module loading based on config file
                 if os.path.exists(self.plugin_setting_path):
@@ -73,6 +69,11 @@ class PluginLoader:
                         plugin_setting = json.load(json_file)
                     if plugin_setting[plugin_name] == False:
                         continue
+
+                spec = importlib.util.spec_from_file_location(
+                    module_name, module_path)
+                module = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(module)
 
                 for attribute_name in dir(module):
                     attribute = getattr(module, attribute_name)
