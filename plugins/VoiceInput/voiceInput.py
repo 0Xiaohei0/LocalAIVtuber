@@ -17,7 +17,7 @@ class VoiceInput(InputPluginInterface):
     MIC_OUTPUT_PATH = os.path.join(
         current_module_directory, "voice_recording.wav")
 
-    key_to_bind = "ctrl+shift+a"  # Default binding
+    key_to_bind = "ctrl+a"  # Default binding
 
     def init(self):
         self.liveTextbox = LiveTextbox()
@@ -27,10 +27,10 @@ class VoiceInput(InputPluginInterface):
         self.input_language = "english"
         self.ambience_adjusted = False
 
-        self.model = whisper.load_model("base.en")
+        self.model = whisper.load_model("small.en")
         self.liveTextbox.print(f"whisper_model.device: {self.model.device}")
         self.whisper_filter_list = [
-            'you', 'thank you.', 'thanks for watching.', "Thank you for watching.", "1.5%", "I'm going to put it in the fridge.", "I", ".", "Okay.", "Bye."]
+            'you', 'thank you.', 'thanks for watching.', "Thank you for watching.", "1.5%", "I'm going to put it in the fridge.", "I", ".", "okay.", "bye.", "so,"]
         
         # Assign the function to be called when the space bar is pressed
         keyboard.add_hotkey(self.key_to_bind, self.on_interrupt_key)

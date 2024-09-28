@@ -24,7 +24,7 @@ class GPT_SOVITS(TTSPluginInterface):
     
     voice_configs = []
     current_voice_config = None
-    language = "auto"
+    language = "en"
 
     def load_voice_config(self):
         with open(self.CONFIG_FILENAME, 'r', encoding='utf-8') as file:
@@ -52,9 +52,9 @@ class GPT_SOVITS(TTSPluginInterface):
 
     def synthesize(self, text):
         text = self.preprocess_text(text)
-        response = api.tts_endpoint(text=text, text_language=self.language)
-
+        
         try:
+            response = api.tts_endpoint(text=text, text_language=self.language)
             with open(self.OUTPUT_FILENAME, 'wb') as file:
                 file.write(response)
         except Exception as e:

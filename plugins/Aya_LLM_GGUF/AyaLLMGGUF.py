@@ -49,7 +49,7 @@ class AyaLLM(LLMPluginInterface):
                 return
 
         # Initialize the model
-        self.llm = Llama(model_path=model_path, chat_format="chatml", n_ctx=self.context_length, n_gpu_layers=-1)
+        self.llm = Llama(model_path=model_path, n_ctx=self.context_length, n_gpu_layers=-1, seed=-1)
 
     def create_ui(self):
         with gr.Accordion("Aya LLM settings", open=False):
@@ -91,7 +91,7 @@ class AyaLLM(LLMPluginInterface):
         print(f"Generating with temperature {self.temperature}")
 
         completion_chunks = self.llm.create_chat_completion(
-            messages, stream=True, presence_penalty=1.0, frequency_penalty=1.0, temperature=self.temperature)
+            messages, stream=True, temperature=self.temperature)
         output = ""
         for completion_chunk in completion_chunks:
             try:

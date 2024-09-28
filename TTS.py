@@ -186,6 +186,11 @@ class TTS(PluginSelectionBase):
                 self.input_queue = Queue()
                 self.audio_data_queue = Queue()
                 self.interrupt = False
+                # Stop and close the stream
+                stream.stop_stream()
+                stream.close()
+                # Close PyAudio
+                p.terminate()
                 break
             # Calculate volume for the next chunk
             chunk_data, normalized_volume = process_chunk(i)

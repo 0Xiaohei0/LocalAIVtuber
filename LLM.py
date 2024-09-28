@@ -55,17 +55,23 @@ class LLM(PluginSelectionBase):
                               ["Do you want to be friend with me?", None, None],
                               ], autofocus=False
                 )
+                
+                self.reset_button = gr.Button("reset chat history")
+                self.reset_button.click(fn=self.reset_chat, inputs=[], outputs=[])
                 with gr.Accordion("Console"):
                     self.liveTextbox.create_ui()
                     self.process_queue_live_textbox.create_ui(
                         lines=3, max_lines=3, label="Input waiting to be processed: ")
             super().create_plugin_ui()
 
+    def reset_chat(self):
+        self.history.clear()
+        
     def is_generator(self): return inspect.isgeneratorfunction(
         self.current_plugin.predict)
 
     def predict_wrapper(self, message, history, system_prompt):
-        # print(f"history: {history}")
+        print(f"history: {history}")
         # determine if predict function is generator and sends output to other modules
         
         self.start_of_response = True
