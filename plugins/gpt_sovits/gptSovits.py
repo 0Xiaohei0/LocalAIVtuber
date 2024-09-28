@@ -74,11 +74,15 @@ class GPT_SOVITS(TTSPluginInterface):
                                                    choices=["auto", "en", "zh", "ja"], value=self.language, interactive=True)
                 self.language_dropdown.change(self.change_language, [self.language_dropdown], [])
 
-    def change_voice(self,voice_name):
+    def change_voice(self, voice_name):
         for voice in self.voice_configs:
             if voice['name'] == voice_name:
+                print(f"self.current_voice_config {self.current_voice_config}")
                 self.current_voice_config = voice
+                self.load_voice_config()
                 return voice_name
+        print(f"{voice_name} not found")
+        print(f"self.voice_configs: {self.voice_configs}")
 
     def change_language(self,language):
         self.language = language
@@ -87,6 +91,7 @@ class GPT_SOVITS(TTSPluginInterface):
         return list(map(lambda x:x["name"], self.voice_configs))
 
     def refresh_choices(self):
+        self.load_voice_config()
         voice_names = self.get_voice_names()
         return {"choices": voice_names, "__type__": "update"}
     
