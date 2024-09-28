@@ -29,7 +29,7 @@ class LiveTextbox():
         self.messages.clear()
 
     # Generator function for the Gradio interface
-    def message_generator(self, _):
+    def message_generator(self):
         last_yielded = None
         while True:
             with self.lock:
