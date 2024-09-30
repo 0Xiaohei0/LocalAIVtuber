@@ -69,7 +69,7 @@ set "CUDA_HOME=%CUDA_PATH%"
 call "%CONDA_ROOT_PREFIX%\condabin\conda.bat" activate "%INSTALL_ENV_DIR%" || ( echo. && echo Miniconda hook not found. && goto end )
 echo "%CONDA_ROOT_PREFIX%\condabin\conda.bat" activate "%INSTALL_ENV_DIR%"
 echo Virtual environment activated.
-goto :startmain
+
 :: Path to the expected installation directory of the Build Tools
 set VSBUILDTOOLS_DIR=%cd%\BuildTools
 
@@ -93,10 +93,53 @@ echo installing C++ Build Tools, this should take a minute...
 echo C++ Build Tools installed successfully.
 
 :SkipCPPInstallation
+
+:: Check if long path support is already enabled
+reg query "HKLM\SYSTEM\CurrentControlSet\Control\FileSystem" /v "LongPathsEnabled" >nul 2>&1
+
+if %ERRORLEVEL% neq 0 (
+    echo LongPathsEnabled registry key not found, enabling long path support...
+	:: Check if script is running as administrator
+	net session >nul 2>&1
+	if %ERRORLEVEL% neq 0 (
+		echo Need administrative privileges to enable long path support...
+		powershell -Command "Start-Process '%~f0' -Verb RunAs"
+		exit /b
+	)
+    reg add "HKLM\SYSTEM\CurrentControlSet\Control\FileSystem" /v "LongPathsEnabled" /t REG_DWORD /d 1 /f
+    if %ERRORLEVEL% equ 0 (
+        echo Long path support has been successfully enabled.
+    ) else (
+        call :PrintBigMessage "ERROR: Failed to enable long path support. Please run this script as administrator."
+    )
+) else (
+    for /f "tokens=3" %%A in ('reg query "HKLM\SYSTEM\CurrentControlSet\Control\FileSystem" /v "LongPathsEnabled" 2^>nul') do set LongPathsEnabled=%%A
+    if "%LongPathsEnabled%"=="0x1" (
+        echo Long path support is already enabled.
+    ) else (
+        echo Long path support is disabled. Enabling it now...
+		:: Check if script is running as administrator
+		net session >nul 2>&1
+		if %ERRORLEVEL% neq 0 (
+			echo Need administrative privileges to enable long path support...
+			powershell -Command "Start-Process '%~f0' -Verb RunAs"
+			exit /b
+		)
+        reg add "HKLM\SYSTEM\CurrentControlSet\Control\FileSystem" /v "LongPathsEnabled" /t REG_DWORD /d 1 /f
+        if %ERRORLEVEL% equ 0 (
+            echo Long path support has been successfully enabled.
+        ) else (
+            call :PrintBigMessage "ERROR: Failed to enable long path support. Please run this script as administrator."
+        )
+    )
+)
+
+
 echo Installing dependencies...
 CALL python -m pip install pip==24.0
-CALL pip install -r requirements.txt
-CALL pip3 install torch torchaudio
+CALL python -m pip install -r requirements.txt
+CALL python -m pip install llama-cpp-python==0.3.0
+CALL python -m pip install torch torchaudio
 
 :: Workaround for llama-cpp-python loading paths in CUDA env vars even if they do not exist
 set "conda_path_bin=%INSTALL_ENV_DIR%\bin"
