@@ -64,7 +64,10 @@ current_module_directory = os.path.dirname(__file__)
 
 sovits_path = os.path.join(current_module_directory, "SoVITS_weights", "")
 gpt_path = os.path.join(current_module_directory, "GPT_weights", "")
-device =  "cuda" if torch.cuda.is_available() else "cpu",
+if torch.cuda.is_available():
+    device = "cuda"
+else:
+    device = "cpu"
 cnhubert_base_path =  os.path.join(current_module_directory, g_config.cnhubert_path)
 bert_path = os.path.join(current_module_directory, g_config.bert_path)
 default_cut_punc = ""
