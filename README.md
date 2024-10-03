@@ -16,21 +16,56 @@ early test stream (https://www.youtube.com/live/9LK_-pqz8Ts?si=yUd-Wz6xV6wXt-t7)
 
 
 ## Installation
-### Prepackaged zip (recommended)
-If you are a Windows user, you can [download the integrated package](https://huggingface.co/xiaoheiqaq/LocalAiVtuber-windows-package/resolve/main/LocalAIVtuber.zip?download=true)
-and double-click on run.bat to start the webUI.
+### Manual setup (Tutorial video: WIP)
+install python 3.10
+https://www.python.org/downloads/release/python-3100/
+
+install CUDA toolkit 12.4
+https://developer.nvidia.com/cuda-12-4-0-download-archive
+
+install visual studio and add desktop development with C++ component
+https://visualstudio.microsoft.com/downloads/
+
+![Screenshot 2024-10-03 100032](https://github.com/user-attachments/assets/11e56864-00ab-4c2d-931a-d9cc9422b52b)
 
 
-### Manual setup
-1. Download the project as zip from [releases](https://github.com/0Xiaohei0/LocalAIVtuber/releases)
-3. Extract and double click run.bat
-4. When you see this message, go to http://localhost:7860 to see web UI 
+1. Download the project from [releases](https://github.com/0Xiaohei0/LocalAIVtuber/releases)
+2. open command prompt in project folder.
+  
+3. Create environment
+  ```
+  python -m venv venv
+  .\venv\Scripts\activate
+  ```
+  (If you encounter an error that says “cannot be loaded because the execution of scripts is disabled on this system. Open powershell with admin privilage and run ```Set-ExecutionPolicy RemoteSigned```)
+  
+4. Install packages
+  ```
+  pip install -r requirements.txt
+  pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
+  $env:CMAKE_ARGS ="-DGGML_CUDA=ON"
+  pip install llama-cpp-python --no-cache-dir --verbose --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/124
+  ```
+
+5. Start Program
+   ```
+   python main.py
+   ```
+    When you see this message, go to http://localhost:7860 to see web UI 
+    ```
+    Running on local URL:  http://127.0.0.1:7860
+    To create a public link, set `share=True` in `launch()`.
+    ```
+   
+### One click setup 
+1. Download the project from [releases](https://github.com/0Xiaohei0/LocalAIVtuber/releases)
+2. Extract and double click run.bat
+3. When you see this message, go to http://localhost:7860 to see web UI 
 ```
 Running on local URL:  http://127.0.0.1:7860
 
 To create a public link, set `share=True` in `launch()`.
 ```
-
 
 ## TODO (This project is still under development and more features are planned)
 - Fetch chat input from streaming platforms (Finished)
