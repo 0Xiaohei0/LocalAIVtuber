@@ -57,7 +57,7 @@ https://visualstudio.microsoft.com/downloads/
     To create a public link, set `share=True` in `launch()`.
     ```
    
-### One click setup 
+### One click setup (Outdated and may not work)
 1. Download the project from [releases](https://github.com/0Xiaohei0/LocalAIVtuber/releases)
 2. Extract and double click run.bat
 3. When you see this message, go to http://localhost:7860 to see web UI 
@@ -71,9 +71,9 @@ To create a public link, set `share=True` in `launch()`.
 - Fetch chat input from streaming platforms (Finished)
 - Improve local LLM (Finetuned model avaliable https://huggingface.co/xiaoheiqaq/Aya-7b-gguf)
 - Write plugins for cloud providers(Azure tts, elevenlabs, chatgpt, whisper...)
-- GPU support
+- GPU support (Finished)
 - Vtube studio integration (Finished)
-- Let AI play games and provide commentary. (can play chess through lichess)
+- Let AI play games and provide commentary. (can currently play chess and keep talking nobody explode)
 - AI singing
 
 
