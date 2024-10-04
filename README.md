@@ -48,6 +48,9 @@ https://visualstudio.microsoft.com/downloads/
   pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
   $env:CMAKE_ARGS ="-DGGML_CUDA=ON"
   pip install llama-cpp-python --no-cache-dir --verbose --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/124
+
+  pip install nltk
+  python -m nltk.downloader -d C:\nltk_data all
   ```
 
 5. Start Program
