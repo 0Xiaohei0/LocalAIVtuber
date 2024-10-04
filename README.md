@@ -62,7 +62,12 @@ https://visualstudio.microsoft.com/downloads/
     Running on local URL:  http://127.0.0.1:7860
     To create a public link, set `share=True` in `launch()`.
     ```
-   
+
+Note: To start the program again, run:
+  ```
+  .\venv\Scripts\activate
+   python main.py
+   ```
 ### One click setup (Outdated and may not work)
 1. Download the project from [releases](https://github.com/0Xiaohei0/LocalAIVtuber/releases)
 2. Extract and double click run.bat
