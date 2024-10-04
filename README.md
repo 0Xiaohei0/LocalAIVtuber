@@ -1,12 +1,15 @@
 # Local AI Vtuber (A tool for hosting AI vtubers that runs fully locally and offline)
 
+Full demo and setup guide: https://youtu.be/Yl-T3YgePmw?si=n-vaZzClw0Q833E5
+
 - Chatbot, Translation and Text-to-Speech, all completely free and running locally.
 - Support voice output in Japanese, English, German, Spanish, French, Russian and more, powered by RVC, silero and voicevox.
 - Includes custom finetuned model to avoid generic chatbot responses and breaking character.
 - Gradio UI web interface.
 - plugin support for easily adding other providers.
-  
-early test stream (https://www.youtube.com/live/9LK_-pqz8Ts?si=yUd-Wz6xV6wXt-t7)
+
+
+
 <table>
   <tr>
     <td><img src="https://github.com/0Xiaohei0/VtuberChess/assets/24196833/6433bc1f-cdec-423f-b190-b7330497d28e" /></td>
@@ -16,7 +19,7 @@ early test stream (https://www.youtube.com/live/9LK_-pqz8Ts?si=yUd-Wz6xV6wXt-t7)
 
 
 ## Installation
-### Manual setup (Tutorial video: WIP)
+### Manual setup (Tutorial video: [Full demo and setup guide](https://youtu.be/Yl-T3YgePmw?si=n-vaZzClw0Q833E5))
 install python 3.10
 https://www.python.org/downloads/release/python-3100/
 
