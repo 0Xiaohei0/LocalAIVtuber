@@ -46,8 +46,7 @@ https://visualstudio.microsoft.com/downloads/
   ```
   pip install -r requirements.txt
   pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
-  $env:CMAKE_ARGS ="-DGGML_CUDA=ON"
-  pip install llama-cpp-python --no-cache-dir --verbose --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/124
+  pip install llama-cpp-python
 
   pip install nltk
   python -m nltk.downloader -d C:\nltk_data all
@@ -71,17 +70,13 @@ To start the program again, run:
    python main.py
    ```
 
-If your machine is potato, You can Install the CPU version of llama-cpp-python by replacing the lines:
+If you have a decent GPU, You can install the GPU version of llama-cpp-python:
 ```
 $env:CMAKE_ARGS ="-DGGML_CUDA=ON"
 pip install llama-cpp-python --no-cache-dir --verbose --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/124
 ```
-with just
-```
-pip install llama-cpp-python
-```
-This is much faster to install and does not require visual studio. 
-At the cost of slightly higher latency.
+This can improve latency further.
+
 ### One click setup (Outdated and may not work)
 1. Download the project from [releases](https://github.com/0Xiaohei0/LocalAIVtuber/releases)
 2. Extract and double click run.bat
