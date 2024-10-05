@@ -73,7 +73,7 @@ To start the program again, run:
 If you have a decent GPU, You can install the GPU version of llama-cpp-python:
 ```
 $env:CMAKE_ARGS ="-DGGML_CUDA=ON"
-pip install llama-cpp-python --no-cache-dir --verbose --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/124
+ pip install llama-cpp-python --force-reinstall --no-cache-dir --verbose --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/124
 ```
 This can improve latency further.
 
