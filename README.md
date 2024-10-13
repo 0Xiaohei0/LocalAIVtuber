@@ -117,6 +117,10 @@ To create a public link, set `share=True` in `launch()`.
 
 ## FAQ:
 
+- NameError: name '_in_projection' is not defined
+
+You cannot enable gpt sovits and rvc at the same time, some of their modules have conflict. 
+
 - UnboundLocalError: local variable 'response' referenced before assignment
 
   If you cloned this repo, you maybe missing model files for gpt-sovits, which will be in the zip folder in the [releases](https://github.com/0Xiaohei0/LocalAIVtuber/releases) section. 
