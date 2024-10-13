@@ -64,18 +64,35 @@ https://visualstudio.microsoft.com/downloads/
 
 ### Notes: 
 
+#### restarting program
+
 To start the program again, run:
   ```
   .\venv\Scripts\activate
    python main.py
    ```
-
+#### run llm on gpu
 If you have a decent GPU, You can install the GPU version of llama-cpp-python:
 ```
 $env:CMAKE_ARGS ="-DGGML_CUDA=ON"
  pip install llama-cpp-python --force-reinstall --no-cache-dir --verbose --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/124
 ```
 This can improve latency further.
+
+Just a reminder for someone using Command Prompt instead of Power Shell
+Change this
+```
+$env:CMAKE_ARGS ="-DGGML_CUDA=ON"
+```
+To this
+```
+set CMAKE_ARGS=-DGGML_CUDA=ON
+```
+or it will show error 
+```
+$env:CMAKE_ARGS ="-DGGML_CUDA=ON"
+The filename, directory name, or volume label syntax is incorrect.
+```
 
 ### One click setup (Outdated and may not work)
 1. Download the project from [releases](https://github.com/0Xiaohei0/LocalAIVtuber/releases)
@@ -99,6 +116,11 @@ To create a public link, set `share=True` in `launch()`.
 
 
 ## FAQ:
+
+- UnboundLocalError: local variable 'response' referenced before assignment
+
+  If you cloned this repo, you maybe missing model files for gpt-sovits, which will be in the zip folder in the [releases](https://github.com/0Xiaohei0/LocalAIVtuber/releases) section. 
+  replace plugins\gpt_sovits\models with the one from the zip.
 - To fetch chat from Youtube, copy the youtube_video_id from the stream url like this:
   
  ![image](https://github.com/0Xiaohei0/LocalAIVtuber/assets/24196833/942b9811-46bc-40f9-a7df-7938d0070513)
