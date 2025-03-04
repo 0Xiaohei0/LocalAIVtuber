@@ -67,6 +67,15 @@ class PluginLoader:
                 if os.path.exists(self.plugin_setting_path):
                     with open(self.plugin_setting_path, "r") as json_file:
                         plugin_setting = json.load(json_file)
+
+                    if plugin_name not in plugin_setting:
+                        # If the key doesn't exist, add it with a default value
+                        plugin_setting[plugin_name] = True
+
+                        # Write the updated dictionary back to the file
+                        with open(self.plugin_setting_path, "w") as json_file:
+                            json.dump(plugin_setting, json_file, indent=4)  
+
                     if plugin_setting[plugin_name] == False:
                         continue
 

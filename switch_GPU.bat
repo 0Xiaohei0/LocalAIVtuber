@@ -44,7 +44,7 @@ echo Virtual environment activated.
 
 :SkipCPPInstallation
 echo Installing GPU torch...
-CALL pip3 install --upgrade torch torchaudio --index-url https://download.pytorch.org/whl/cu121
+CALL pip3 install --upgrade torch torchaudio --index-url https://download.pytorch.org/whl/cu124
 
 echo GPU libraries installed successfully.
 

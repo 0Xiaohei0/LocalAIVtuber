@@ -70,7 +70,7 @@ call "%CONDA_ROOT_PREFIX%\condabin\conda.bat" activate "%INSTALL_ENV_DIR%" || ( 
 echo "%CONDA_ROOT_PREFIX%\condabin\conda.bat" activate "%INSTALL_ENV_DIR%"
 echo Virtual environment activated.
 
-goto :startmain
+goto :SkipCPPInstallation
 :: Path to the expected installation directory of the Build Tools
 set VSBUILDTOOLS_DIR=%cd%\BuildTools
 
@@ -139,8 +139,9 @@ if %ERRORLEVEL% neq 0 (
 echo Installing dependencies...
 CALL python -m pip install pip==24.0
 CALL python -m pip install -r requirements.txt
-CALL python -m pip install llama-cpp-python --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cu124
+CALL python -m pip install llama-cpp-python==0.3.4 --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cu124
 CALL python -m pip install torch torchaudio --index-url https://download.pytorch.org/whl/cu124
+CALL python -m pip install silero-vad faster-whisper
 
 :: Workaround for llama-cpp-python loading paths in CUDA env vars even if they do not exist
 set "conda_path_bin=%INSTALL_ENV_DIR%\bin"
