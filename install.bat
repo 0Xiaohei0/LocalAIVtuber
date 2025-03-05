@@ -137,7 +137,8 @@ if %ERRORLEVEL% neq 0 (
 
 
 echo Installing dependencies...
-CALL python -m pip install --upgrade gradio==4.44.1
+CALL python -m pip install llama-cpp-python==0.2.90 --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cu124
+
 
 :: Workaround for llama-cpp-python loading paths in CUDA env vars even if they do not exist
 set "conda_path_bin=%INSTALL_ENV_DIR%\bin"
