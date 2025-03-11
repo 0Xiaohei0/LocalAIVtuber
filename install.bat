@@ -137,7 +137,7 @@ if %ERRORLEVEL% neq 0 (
 
 
 echo Installing dependencies...
-CALL python -m pip install llama-cpp-python==0.2.90 --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cu124
+CALL python -m pip install pyautogui
 
 
 :: Workaround for llama-cpp-python loading paths in CUDA env vars even if they do not exist

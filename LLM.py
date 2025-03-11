@@ -7,6 +7,7 @@ from pluginSelectionBase import PluginSelectionBase
 import os
 from liveTextbox import LiveTextbox
 import LAV_utils
+from lib.vision import VisionLLM
 
 
 class LLM(PluginSelectionBase):
@@ -26,6 +27,7 @@ class LLM(PluginSelectionBase):
         self.full_output_event_listeners = []
         self.context_file_path = "Context.txt"
         self.LLM_output = ""
+        self.vision_llm = VisionLLM()
         
         self.history = []
         # Check if the file exists. If not, create an empty file.
@@ -71,11 +73,19 @@ class LLM(PluginSelectionBase):
         self.current_plugin.predict)
 
     def predict_wrapper(self, message, history, system_prompt):
-        print(f"history: {history}")
+        # print(f"history: {history}")
         # determine if predict function is generator and sends output to other modules
         
+        # add screen caption to system prompt
+        screen_description = self.vision_llm.get_screen_description()
+        system_prompt += "Here is a description of the user's screen: " + screen_description + "\n"
+        print(f"system_prompt: {system_prompt}")
+
         self.start_of_response = True
         self.liveTextbox.print(f"Input: {message}")
+        if self.current_plugin is None:
+            yield "There is a problem with my Language plugin."
+            return
         result = self.current_plugin.predict(message, history, system_prompt)
         self.liveTextbox.print(f"AI: ")
         if self.is_generator():

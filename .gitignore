@@ -23,3 +23,5 @@ installer_files
 BuildTools
 builds
 output
+*.log
+*.png

@@ -10,7 +10,7 @@ import os
 class GGUFLoader(LLMPluginInterface):
     context_length = 32768
     temperature = 0.9
-    offload_gpu_layers = -1
+    offload_gpu_layers = 0
     def init(self):
         # Directory where the module is located
         self.current_module_directory = os.path.dirname(__file__)

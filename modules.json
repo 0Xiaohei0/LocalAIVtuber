@@ -16,5 +16,5 @@
     "VtubeStudio": false,
     "YoutubeChatFetch": false,
     "VoiceInputDesktop": false,
-    "GGUF_Loader": false
+    "GGUF_Loader": true
 }
