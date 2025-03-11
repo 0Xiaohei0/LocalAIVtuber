@@ -146,6 +146,8 @@ class TTS(PluginSelectionBase):
         Play audio from bytes and normalize volume in real time, with improved synchronization.
         """
         if(audio_data == None): return
+        self.send_output(audio_data)
+        return
         # Open the audio data with PyDub
         audio = AudioSegment.from_file(
             io.BytesIO(audio_data), format="wav")
@@ -154,6 +156,8 @@ class TTS(PluginSelectionBase):
         max_rms = self.find_max_rms(audio, chunk_size)
 
         p = pyaudio.PyAudio()
+        
+        
 
         try:
             stream = p.open(format=p.get_format_from_width(audio.sample_width),
@@ -194,7 +198,7 @@ class TTS(PluginSelectionBase):
                 break
             # Calculate volume for the next chunk
             chunk_data, normalized_volume = process_chunk(i)
-            self.send_output(normalized_volume)
+            # self.send_output(normalized_volume)
             # print(f"Normalized Volume: {normalized_volume}")
 
         # Play the last chunk

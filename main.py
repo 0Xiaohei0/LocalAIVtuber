@@ -11,6 +11,8 @@ from globals import global_state, GlobalKeys
 
 import logging
 
+import server
+
 logging.basicConfig(level=logging.WARNING)
 
 # allow relative imports in plugins folder
@@ -58,7 +60,8 @@ def update_globals_periodic():
     global_update_loop = threading.Timer(0.5, update_globals_periodic).start()
 
 update_globals()
+tts.add_output_event_listener(server.send_audio_to_client)
+server.start()
 main_interface.queue().launch()
-
 
 
